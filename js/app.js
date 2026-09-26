@@ -65,7 +65,7 @@
   let activeFilter = 'All';
   let query = '';
   let venueQuery = '';
-  let selectedPayMethod = 'CARD';
+  let selectedPayMethod = 'SAVE';
   let lastPlacedOrder = null;
 
   /* Cart Calculations */
@@ -374,23 +374,16 @@
 
     if (placeBtn) {
       placeBtn.disabled = false;
-      const payLabel = selectedPayMethod === 'CASH' ? 'Trimite comanda (Plată la tejghea)'
-        : `Plătește cu cardul · ${money(total)}`;
-      placeBtn.textContent = payLabel;
+      placeBtn.textContent = `Plată la tejghea • ${money(total)}`;
     }
   }
 
+  // No customer form: the pickup code identifies the order.
   function readCustomerFromInputs() {
-    return {
-      name: ($('#custName')?.value || '').trim(),
-      phone: ($('#custPhone')?.value || '').trim(),
-      notes: ($('#custNotes')?.value || '').trim()
-    };
+    return { name: '', phone: '', notes: '' };
   }
 
-  function validateCustomer(cust) {
-    if (!cust.name) return 'Te rugăm să introduci numele pentru preluare.';
-    if (!cust.phone || cust.phone.length < 8) return 'Te rugăm să introduci un număr de telefon valid.';
+  function validateCustomer() {
     return null;
   }
 
@@ -477,6 +470,9 @@
         cartIdRef.textContent = lastPlacedOrder.saporiCartId || 'Sincronizat';
       }
 
+      renderTicketQr(lastPlacedOrder);
+      renderSuccessSummary(lastPlacedOrder);
+
       window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -486,46 +482,86 @@
       return;
     }
 
-    const customer = readCustomerFromInputs();
-    const custErr = validateCustomer(customer);
-    if (custErr) {
-      toast(custErr);
-      if (!customer.name) $('#custName')?.focus();
-      else $('#custPhone')?.focus();
-      return;
-    }
-
-    const orderData = buildOrderData(customer);
-    const P = window.MunchoPayments;
+    // "Plată la tejghea": save the order, show the pickup code + QR.
+    const orderData = buildOrderData(readCustomerFromInputs());
 
     const placeBtn = $('#btnSubmitOrder');
     if (placeBtn) {
       placeBtn.disabled = true;
-      placeBtn.textContent = 'Se autorizează plata...';
+      placeBtn.textContent = 'Se salvează comanda...';
     }
 
     try {
-      let payResult = null;
-      if (selectedPayMethod === 'CARD') {
-        const cardData = {
-          name: $('#cardHolderName')?.value || customer.name,
-          number: $('#cardNumberInput')?.value || '',
-          expiry: $('#cardExpiryInput')?.value || '',
-          cvv: $('#cardCvvInput')?.value || ''
-        };
-        payResult = await P.payWithCard(cardData, orderData);
-      } else {
-        payResult = await P.payWithCash(orderData);
-      }
-
+      const payResult = {
+        success: true,
+        method: 'TEJ',
+        transactionId: 'tej_' + Date.now().toString(36),
+        paidAt: new Date().toISOString()
+      };
       await finalizePaidOrder(payResult, orderData);
     } catch (err) {
-      toast(err.message || 'Plata nu a putut fi procesată.');
+      toast(err.message || 'Comanda nu a putut fi salvată.');
       if (placeBtn) {
         placeBtn.disabled = false;
         renderCheckout();
       }
     }
+  }
+
+  /* Ticket QR helpers (order code → comanda.html summary, scannable at the register) */
+  function encodeTicket(order) {
+    const data = {
+      c: order.code,
+      d: order.date,
+      t: Math.round(Number(order.total) * 100) / 100,
+      m: order.payMethod,
+      i: (order.items || []).map(x => [String(x.title).slice(0, 44), x.qty, x.price])
+    };
+    const json = JSON.stringify(data);
+    return btoa(unescape(encodeURIComponent(json)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  function ticketUrl(order) {
+    const base = location.pathname.replace(/[^/]*$/, '');
+    return location.origin + base + 'comanda.html#o=' + encodeTicket(order);
+  }
+
+  function renderTicketQr(order) {
+    const box = document.getElementById('orderQrBox');
+    if (!box) return;
+    box.innerHTML = '';
+    if (!window.qrcode) return;
+    try {
+      const qr = window.qrcode(0, 'M');
+      qr.addData(ticketUrl(order));
+      qr.make();
+      box.innerHTML = qr.createSvgTag({ cellSize: 5, margin: 8, scalable: true });
+      const svg = box.querySelector('svg');
+      if (svg) {
+        svg.style.width = '100%';
+        svg.style.maxWidth = '220px';
+        svg.style.height = 'auto';
+        svg.style.display = 'block';
+        svg.style.margin = '0 auto';
+      }
+    } catch (e) {
+      box.textContent = '#' + order.code;
+    }
+  }
+
+  function renderSuccessSummary(order) {
+    const box = document.getElementById('successOrderSummary');
+    if (!box) return;
+    box.innerHTML = (order.items || []).map(x => `
+      <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,0.06);">
+        <span style="font-size:13.5px;font-weight:700;flex:1;">${esc(x.title)} <span style="color:var(--text-muted);font-weight:600;">× ${x.qty}</span></span>
+        <span class="num" style="font-size:14px;font-weight:800;">${money(x.price * x.qty)}</span>
+      </div>
+    `).join('') + `
+      <div style="display:flex;justify-content:space-between;font-size:16px;font-weight:800;padding-top:10px;">
+        <span>Total de plată</span><span class="num">${money(order.total)}</span>
+      </div>`;
   }
 
   /* ==========================================================================
@@ -535,54 +571,40 @@
     const P = window.MunchoPayments;
     if (!P || PAGE !== 'checkout') return;
 
+    // Apple Pay button only exists once a verified merchant is configured.
+    const appleBtn = $('#applePayBtn');
+    const appleConfigured = !!(window.MUNCHO_CONFIG && window.MUNCHO_CONFIG.payments &&
+      String(window.MUNCHO_CONFIG.payments.applePayMerchantIdentifier || '').trim());
+    if (appleBtn && !appleConfigured) appleBtn.style.display = 'none';
+
     // Real Google Pay button (official TEST sheet on secure origins).
     if (cartItemCount()) {
       P.initGooglePay({
         amount: cartTotal(),
         getCustomer: readCustomerFromInputs,
-        validateCustomer: (cust) => {
-          const err = validateCustomer(cust || readCustomerFromInputs());
-          if (err) {
-            toast(err);
-            const c = cust || {};
-            if (!c.name) $('#custName')?.focus();
-            else $('#custPhone')?.focus();
-            $('#custName')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-          return err;
-        },
+        validateCustomer: () => null, // no customer form: the pickup code identifies the order
         onPaid: async (payResult) => {
-          const customer = readCustomerFromInputs();
-          await finalizePaidOrder(payResult, buildOrderData(customer));
+          await finalizePaidOrder(payResult, buildOrderData(readCustomerFromInputs()));
         },
         onUnavailable: () => {}
       }).catch(() => {});
     }
 
-    // Real Apple Pay button → genuine session attempt / honest setup info.
-    $('#applePayBtn')?.addEventListener('click', async () => {
+    // Real Apple Pay button → genuine session attempt.
+    appleBtn?.addEventListener('click', async () => {
       if (!cartItemCount()) {
         toast('Coșul tău este gol.');
         return;
       }
-      const customer = readCustomerFromInputs();
-      const custErr = validateCustomer(customer);
-      if (custErr) {
-        toast(custErr);
-        if (!customer.name) $('#custName')?.focus();
-        else $('#custPhone')?.focus();
-        return;
-      }
-      const btn = $('#applePayBtn');
-      if (btn) btn.disabled = true;
+      appleBtn.disabled = true;
       try {
-        const payResult = await P.payWithApplePay(buildOrderData(customer));
-        await finalizePaidOrder(payResult, buildOrderData(customer));
+        const payResult = await P.payWithApplePay(buildOrderData(readCustomerFromInputs()));
+        await finalizePaidOrder(payResult, buildOrderData(readCustomerFromInputs()));
       } catch (err) {
         if (err && err.message) toast(err.message);
         renderCheckout();
       } finally {
-        if (btn) btn.disabled = false;
+        appleBtn.disabled = false;
       }
     });
   }
@@ -808,7 +830,7 @@
       }
     }
 
-    // Payment options in checkout
+    // Payment options in checkout (single method: save order, pay at register)
     const payBtn = e.target.closest('.pay-option-btn');
     if (payBtn) {
       selectedPayMethod = payBtn.dataset.method;
@@ -817,8 +839,6 @@
         b.classList.toggle('active', isSelected);
         b.setAttribute('aria-checked', String(isSelected));
       });
-      const cardBox = $('#cardDetailsContainer');
-      if (cardBox) cardBox.style.display = selectedPayMethod === 'CARD' ? 'block' : 'none';
       renderCheckout();
       return;
     }
@@ -910,23 +930,6 @@
       window.MunchoSaporiBridge.callCounter();
     }
   });
-
-  // Card Formatting listeners
-  const cardNum = $('#cardNumberInput');
-  if (cardNum && window.MunchoPayments) {
-    cardNum.addEventListener('input', (e) => {
-      e.target.value = window.MunchoPayments.cardUtils.formatCardNumber(e.target.value);
-      const brand = window.MunchoPayments.cardUtils.detectBrand(e.target.value);
-      const badge = $('#cardTypeBadge');
-      if (badge) badge.textContent = brand.label;
-    });
-  }
-  const cardExp = $('#cardExpiryInput');
-  if (cardExp && window.MunchoPayments) {
-    cardExp.addEventListener('input', (e) => {
-      e.target.value = window.MunchoPayments.cardUtils.formatExpiry(e.target.value);
-    });
-  }
 
   /* ==========================================================================
      Initial Boot

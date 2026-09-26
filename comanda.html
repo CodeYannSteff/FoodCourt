@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#F4F6F9" />
+<link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+<title>Sumar Comandă — Muncho Food Court</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/main.css?v=14" />
+</head>
+<body data-page="ticket">
+<div class="wrap">
+  <header class="glass-header" style="display:flex;align-items:center;gap:14px;">
+    <a href="index.html" class="ios-add-btn" style="width:38px;height:38px;padding:0;justify-content:center;background:rgba(255,255,255,0.85);color:var(--text-main);box-shadow:var(--shadow-glass);" aria-label="Meniu">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+    </a>
+    <div>
+      <h2 style="font-size:18px;font-weight:800;letter-spacing:-0.02em;">Sumar Comandă</h2>
+      <p style="font-size:11.5px;color:var(--text-sub);font-weight:600;">Argeș Mall · Food Court Nivel 1</p>
+    </div>
+  </header>
+
+  <main style="padding-bottom:60px;">
+    <div id="ticketError" hidden>
+      <div class="checkout-glass-card" style="text-align:center;padding:30px 18px;">
+        <p style="font-weight:800;font-size:16px;margin-bottom:6px;">Cod invalid sau expirat</p>
+        <p style="font-size:13px;color:var(--text-sub);">Scanează din nou codul de pe ecranul clientului.</p>
+        <a href="index.html" class="ios-add-btn" style="display:inline-flex;margin-top:14px;">Înapoi la meniu</a>
+      </div>
+    </div>
+
+    <div id="ticketCard" hidden>
+      <div class="checkout-glass-card" style="text-align:center;padding:26px 18px;">
+        <span style="font-size:12px;font-weight:800;color:var(--uber-green-dark);letter-spacing:0.06em;text-transform:uppercase;">De plătit la casă</span>
+        <div id="ticketCode" style="font-size:42px;font-weight:800;letter-spacing:-0.02em;margin:4px 0;">#M-100</div>
+        <div id="ticketDate" style="font-size:12px;color:var(--text-sub);font-weight:600;margin-bottom:16px;"></div>
+        <div id="ticketItems" style="text-align:left;"></div>
+        <div id="ticketTotal" style="display:flex;justify-content:space-between;font-size:18px;font-weight:800;padding-top:12px;margin-top:8px;border-top:1px solid rgba(0,0,0,0.08);"></div>
+        <div id="ticketMethod" style="font-size:12px;color:var(--text-sub);font-weight:600;margin-top:8px;"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function decodeTicket() {
+    try {
+      const hash = location.hash || '';
+      const m = hash.match(/[#&]o=([A-Za-z0-9\-_]+)/);
+      if (!m) return null;
+      const b64 = m[1].replace(/-/g, '+').replace(/_/g, '/');
+      const json = decodeURIComponent(escape(window.atob(b64)));
+      const o = JSON.parse(json);
+      if (!o || !o.c || !Array.isArray(o.i)) return null;
+      return o;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function money(v) {
+    return Number(v || 0).toFixed(2) + ' lei';
+  }
+
+  const t = decodeTicket();
+  if (!t) {
+    document.getElementById('ticketError').hidden = false;
+    return;
+  }
+
+  document.getElementById('ticketCard').hidden = false;
+  document.getElementById('ticketCode').textContent = '#' + t.c;
+  document.getElementById('ticketDate').textContent = t.d || '';
+  document.getElementById('ticketItems').innerHTML = t.i.map(function (row) {
+    const title = row[0], qty = row[1], price = row[2];
+    return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,0.06);">' +
+      '<span style="font-size:13.5px;font-weight:700;flex:1;">' + esc(title) + ' <span style="color:var(--text-muted);font-weight:600;">× ' + qty + '</span></span>' +
+      '<span class="num" style="font-size:14px;font-weight:800;">' + money(price * qty) + '</span>' +
+    '</div>';
+  }).join('');
+  document.getElementById('ticketTotal').innerHTML =
+    '<span>Total de plată</span><span class="num">' + money(t.t) + '</span>';
+  const methodLabel = { TEJ: 'Plată la tejghea', 'GOOGLE PAY': 'Google Pay', 'APPLE PAY': 'Apple Pay', CASH: 'Numerar' }[t.m] || t.m || '';
+  document.getElementById('ticketMethod').textContent = methodLabel ? ('Canal: ' + methodLabel) : '';
+})();
+</script>
+</body>
+</html>

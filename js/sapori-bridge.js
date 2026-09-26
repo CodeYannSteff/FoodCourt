@@ -20,8 +20,19 @@
     storeLocation: 'Food Court Argeș Mall, Nivel 1, Pitești'
   };
 
+  const METHOD_LABELS = {
+    TEJ: 'Plată la tejghea',
+    'GOOGLE PAY': 'Google Pay',
+    'APPLE PAY': 'Apple Pay',
+    CASH: 'Numerar'
+  };
+
   const SaporiBridge = {
     config: SAPORI_CONFIG,
+
+    payLabel: function (method) {
+      return METHOD_LABELS[method] || method || '—';
+    },
 
     /**
      * Sync order items with Sapori's live API to create a VirtualCart ID
@@ -84,18 +95,15 @@
 📌 *COD RIDICARE:* #${order.code}
 ⏱ *Dată/Oră:* ${dateStr}
 📍 *Locație:* ${SAPORI_CONFIG.storeLocation}
-👤 *Client:* ${order.customer?.name || 'Client Muncho'}
-📞 *Telefon:* ${order.customer?.phone || '-'}
-💬 *Note:* ${order.customer?.notes || 'Fără preferințe speciale'}
 ━━━━━━━━━━━━━━━━━━━━
 📋 *PRODUSE DE PREPARAT:*
 ${lines}
 ━━━━━━━━━━━━━━━━━━━━
-💰 *TOTAL:* ${Number(order.total).toFixed(2)} lei
-💳 *PLATĂ:* ${order.payMethod || 'ACHITAT'}
+💰 *TOTAL DE PLATĂ LA CASĂ:* ${Number(order.total).toFixed(2)} lei
+💳 *CANAL:* ${SaporiBridge.payLabel(order.payMethod)}
 ${order.saporiCartId ? `🔗 *ID Sistem Sapori:* ${order.saporiCartId}` : ''}
 ━━━━━━━━━━━━━━━━━━━━
-Vă rugăm să pregătiți comanda pentru ridicare la tejghea. Vă mulțumim!`;
+Clientul prezintă codul la casă pentru plată și ridicare. Vă mulțumim!`;
     },
 
     /**

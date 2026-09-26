@@ -55,31 +55,11 @@
         <div id="checkoutTotalsBox" style="margin-top:12px;padding-top:10px;border-top:1px dashed #CBD5E1;"></div>
       </section>
 
-      <!-- Customer Pickup Info -->
-      <section class="checkout-glass-card" aria-label="Date ridicare">
-        <div class="checkout-card-head">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          Date Preluare Comandă
-        </div>
-        <div style="margin-bottom:12px;">
-          <label style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;">Nume și prenume client *</label>
-          <input class="liquid-search-wrap" id="custName" type="text" placeholder="ex: Andrei Popescu" required autocomplete="name" />
-        </div>
-        <div style="margin-bottom:12px;">
-          <label style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;">Număr de telefon (notificare SMS/WhatsApp) *</label>
-          <input class="liquid-search-wrap" id="custPhone" type="tel" placeholder="ex: 0721 000 000" required autocomplete="tel" />
-        </div>
-        <div>
-          <label style="display:block;font-size:12px;font-weight:700;margin-bottom:6px;">Instrucțiuni bucătărie (opțional)</label>
-          <input class="liquid-search-wrap" id="custNotes" type="text" placeholder="ex: Fără ceapă, sos picant separat..." />
-        </div>
-      </section>
-
       <!-- Payment Method Selection -->
       <section class="checkout-glass-card" aria-label="Modalitate de plată">
         <div class="checkout-card-head">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-          Modalitate de Plată Securizată
+          Plată
         </div>
 
         <!-- Real wallet payments (pure frontend, no backend).
@@ -92,7 +72,7 @@
             <svg viewBox="0 0 48 48" width="22" height="22"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
             <span>Pay</span>
           </button>
-          <p style="font-size:11px;color:var(--text-sub);margin-top:6px;">Foaia reală Google Pay (mod test — nu se percepe nicio sumă). Necesită HTTPS + Chrome/Android.</p>
+          <p style="font-size:11px;color:var(--text-sub);margin-top:6px;">Se deschide foaia Google Pay. Necesită HTTPS + Chrome/Android.</p>
         </div>
         <button type="button" id="applePayBtn" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;height:48px;border-radius:12px;background:#000;color:#fff;font-size:17px;font-weight:600;border:none;margin-bottom:12px;" aria-label="Plătește cu Apple Pay">
           <svg viewBox="0 0 170 170" width="20" height="20" fill="currentColor"><path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.66-7.85-11.87-14.42-6.19-9.58-11.05-20.73-14.59-33.45-3.53-12.72-5.3-24.62-5.3-35.7 0-14.9 3.53-27.18 10.59-36.85 7.06-9.67 15.86-14.63 26.41-14.88 5.12 0 10.4 1.34 15.84 4.02 5.44 2.68 9.27 4.08 11.48 4.2 1.8 0 5.8-1.5 12-4.5 6.21-3.01 11.66-4.43 16.36-4.26 12.4.67 22.38 5.14 29.93 13.41-10.88 6.59-16.2 15.65-15.96 27.18.24 9.15 3.73 16.87 10.47 23.16 6.74 6.29 14.75 9.77 24.03 10.45-2.22 6.86-4.8 13.8-7.74 20.82zM119.22 31.84c0-7.18 2.6-13.85 7.8-20.01 5.2-6.16 11.66-9.96 19.38-11.41.24 1.08.36 2.05.36 2.9 0 7.06-2.73 13.79-8.19 20.19-5.46 6.4-12.02 10.15-19.68 11.25-.12-.96-.2-1.93-.2-2.92z"/></svg>
@@ -102,38 +82,16 @@
         <div id="payErrorBox" hidden role="alert" style="font-size:12.5px;font-weight:600;color:#B42318;background:#FEF3F2;border:1px solid #FECDCA;border-radius:12px;padding:10px 12px;margin-bottom:10px;"></div>
 
         <div class="pay-grid-ios" id="paymentOptionsGrid" role="radiogroup">
-          <button type="button" class="pay-option-btn active" data-method="CARD" role="radio" aria-checked="true">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-            <span>Card Bancar</span>
+          <button type="button" class="pay-option-btn active" data-method="SAVE" role="radio" aria-checked="true">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+            <span>Salvează Comanda</span>
           </button>
-          <button type="button" class="pay-option-btn" data-method="CASH" role="radio" aria-checked="false">
-            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
-            <span>Numerar Tejghea</span>
-          </button>
-        </div>
-
-        <!-- Card demo form (clearly labeled — no real charge) -->
-        <div id="cardDetailsContainer" style="margin-top:14px;background:rgba(244,246,249,0.8);border-radius:var(--r-md);padding:14px;border:1px solid var(--glass-border);">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-            <span style="font-size:12px;font-weight:700;">Date Card</span>
-            <span id="cardTypeBadge" style="font-size:10px;font-weight:800;background:var(--brand-black);color:#FFFFFF;padding:2px 8px;border-radius:4px;">Card</span>
-          </div>
-          <div style="margin-bottom:10px;">
-            <input class="liquid-search-wrap" id="cardHolderName" type="text" placeholder="Nume Titular Card" autocomplete="cc-name" />
-          </div>
-          <div style="margin-bottom:10px;">
-            <input class="liquid-search-wrap" id="cardNumberInput" type="tel" inputmode="numeric" placeholder="0000 0000 0000 0000" maxlength="23" autocomplete="cc-number" />
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-            <input class="liquid-search-wrap" id="cardExpiryInput" type="tel" inputmode="numeric" placeholder="LL / AA" maxlength="7" autocomplete="cc-exp" />
-            <input class="liquid-search-wrap" id="cardCvvInput" type="tel" inputmode="numeric" placeholder="CVV" maxlength="4" autocomplete="cc-csc" />
-          </div>
         </div>
       </section>
 
       <!-- Submit Order Action Button -->
       <button type="button" class="ios-add-btn" id="btnSubmitOrder" style="width:calc(100% - 32px);margin:0 16px 20px;height:54px;font-size:16px;justify-content:center;">
-        Plătește comanda
+        Plată la tejghea
       </button>
     </div>
 
@@ -145,9 +103,16 @@
             <path d="M20 6L9 17l-5-5"/>
           </svg>
         </div>
-        <span style="font-size:12px;font-weight:800;color:var(--uber-green-dark);letter-spacing:0.06em;text-transform:uppercase;">Comandă transmisă cu succes!</span>
+        <span style="font-size:12px;font-weight:800;color:var(--uber-green-dark);letter-spacing:0.06em;text-transform:uppercase;">Comandă salvată!</span>
         <div id="finalOrderCode" style="font-size:38px;font-weight:800;letter-spacing:-0.02em;margin:4px 0;">#M-100</div>
-        <p style="font-size:13.5px;color:var(--text-sub);margin-bottom:18px;">Arată codul la tejgheaua din <strong>Argeș Mall Food Court</strong>.</p>
+        <p style="font-size:13.5px;color:var(--text-sub);margin-bottom:18px;">Scanează codul la casă — se deschide sumarul comenzii pentru plată.</p>
+
+        <!-- Pickup QR: cashier scans it to open the order summary -->
+        <div id="orderQrBox" style="display:inline-block;background:#fff;border:1px solid var(--glass-border);border-radius:16px;padding:12px;margin-bottom:6px;"></div>
+        <div style="font-size:11px;color:var(--text-muted);font-weight:600;margin-bottom:18px;">Arată codul la casa din <strong>Argeș Mall Food Court</strong></div>
+
+        <!-- Saved order summary -->
+        <div id="successOrderSummary" style="text-align:left;margin-bottom:20px;"></div>
 
         <!-- Restaurant dispatch status (ntfy push + webhook) -->
         <div id="dispatchStatusBox" style="background:rgba(244,246,249,0.8);border:1px solid var(--glass-border);border-radius:var(--r-md);padding:12px 14px;text-align:left;margin-bottom:20px;font-size:12.5px;">
@@ -212,8 +177,9 @@
 <script src="js/config.js?v=1"></script>
 <script src="js/data.js?v=4"></script>
 <script src="js/sapori-bridge.js?v=1"></script>
-<script src="js/payment.js?v=3"></script>
+<script src="js/qrcode.min.js?v=1"></script>
+<script src="js/payment.js?v=4"></script>
 <script src="js/dispatch.js?v=1"></script>
-<script src="js/app.js?v=17"></script>
+<script src="js/app.js?v=18"></script>
 </body>
 </html>

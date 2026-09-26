@@ -2,19 +2,20 @@
  * Muncho Payment Processor — 100% static (FTP / GitHub Pages friendly).
  * No backend, no Node.js, no secret keys.
  *
- * - GOOGLE PAY: official Google Pay JS library in TEST mode. On secure origins
- *   (https://… such as GitHub Pages, or http://localhost) the REAL Google Pay
- *   sheet opens and Google returns a TEST token. No real money moves — ideal
- *   for testing and product demos.
- * - APPLE PAY: the real ApplePaySession flow is implemented, but Apple only
- *   opens its sheet after server-side merchant validation, which a static page
- *   cannot do. So on a static host the button explains the one-time live setup
- *   and offers a clearly-labeled demo continuation. Once the domain is verified
- *   (see README) the same code path opens the real sheet.
- * - CARD (demo): Luhn-checked form + clearly-labeled demo modal. No real charge.
- * - CASH: pay at the counter.
+ * Flow: the customer saves the order and receives a pickup code + QR ticket
+ * (rendered by app.js). Scanning the code opens comanda.html with the order
+ * summary, which is paid at the register.
  *
- * Paid/demo orders are forwarded to the restaurant by js/dispatch.js
+ * - GOOGLE PAY: official Google Pay JS library in TEST mode. On secure origins
+ *   (https://… such as GitHub Pages, or http://localhost) the Google Pay
+ *   sheet opens and Google returns a test token stored as payment reference.
+ * - APPLE PAY: the button is shown only when an Apple Merchant ID is
+ *   configured. Apple opens its sheet only after server-side merchant
+ *   validation on a verified HTTPS domain (see README).
+ * - SAVE (Plată la tejghea): no online payment — the order is saved with a
+ *   pickup code and paid at the register.
+ *
+ * Saved orders are forwarded to the restaurant by js/dispatch.js
  * (ntfy push + optional webhook + WhatsApp ticket).
  */
 
@@ -105,8 +106,6 @@
     modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
     return modal;
   }
-
-  const DEMO_BADGE = { text: 'MOD DEMO — NU SE PERCEPE NICIO SUMĂ REALĂ', bg: '#FEF3C7', fg: '#92400E' };
 
   // ── Google Pay (official JS library, TEST mode) ──
   // The wallet buttons NEVER disappear: if the official button can't render
@@ -283,7 +282,7 @@
     } catch (e) {
       // Typical on plain http:// LAN origins: Google Pay needs a secure context.
       gpClient = null;
-      return unavailable('Google Pay necesită HTTPS (ex: GitHub Pages) sau localhost. Pe rețeaua locală http folosește cardul demo sau plata la tejghea.');
+      return unavailable('Google Pay necesită HTTPS (ex: GitHub Pages) sau localhost. Pe rețeaua locală http, salvează comanda pentru plata la tejghea.');
     }
 
     if (mount) {
@@ -299,44 +298,33 @@
     return !!(window.ApplePaySession && window.ApplePaySession.canMakePayments());
   }
 
-  function showApplePaySetupModal(orderData, opts) {
-    opts = opts || {};
-    const total = Number(orderData && orderData.total ? orderData.total : 0).toFixed(2);
-    const modal = modalShell(
-      'Apple Pay',
-      DEMO_BADGE,
-      'Foaia reală Apple Pay se poate deschide doar pe un domeniu HTTPS verificat la Apple ' +
-      '(fișier <code>/.well-known/apple-developer-merchantid-domain-association</code> + Merchant ID), ' +
-      'iar validarea comerciantului necesită un server. Pe acest demo static, comanda de ' +
-      '<strong>' + total + ' ' + CURRENCY + '</strong> poate continua ca plată demo etichetată, ' +
-      'iar tichetul ajunge la bucătărie prin canalul configurat.',
-      '<button type="button" id="apClose" style="flex:1;height:48px;border-radius:12px;border:1px solid #E2E8F0;background:#fff;font-weight:700;font-size:14px;color:#0F172A;">Închide</button>' +
-      '<button type="button" id="apDemo" style="flex:1;height:48px;border-radius:12px;border:none;background:#0F172A;color:#fff;font-weight:800;font-size:14px;">Continuă demo</button>'
-    );
-    modal.querySelector('#apClose').addEventListener('click', () => modal.remove());
-    modal.querySelector('#apDemo').addEventListener('click', () => {
-      modal.remove();
-      PaymentProcessor.showDemoSheet('Apple Pay (demo)', orderData).then(opts.onPaid).catch(function () {});
-    });
-    return new Promise((resolve) => {
-      // Resolves only if the user continues with the labeled demo.
-      opts._resolveDemo = resolve;
+  function showApplePaySetupModal() {
+    return new Promise((resolve, reject) => {
+      const modal = modalShell(
+        'Apple Pay',
+        null,
+        'Apple Pay se activează pe domeniul verificat al restaurantului. ' +
+        'Pentru plata la casă, salvează comanda și prezintă codul primit.',
+        '<button type="button" id="apOk" style="flex:1;height:48px;border-radius:12px;border:none;background:#0F172A;color:#fff;font-weight:800;font-size:14px;">Am înțeles</button>'
+      );
+      const done = (err) => { modal.remove(); reject(err); };
+      modal.querySelector('#apOk').addEventListener('click', () => done(new Error('Pentru plata la casă folosește Salvează comanda.')));
+      modal.addEventListener('click', (e) => { if (e.target === modal) done(new Error('Plata cu Apple Pay a fost anulată.')); });
     });
   }
 
   /**
-   * Real Apple Pay attempt. Resolves with a pay result (live or labeled demo).
+   * Real Apple Pay attempt. Resolves only from a genuine session;
+   * on static hosts it explains the live setup instead.
    */
-  async function payWithApplePay(orderData, opts) {
-    opts = opts || {};
-    const done = (r) => { if (typeof opts.onPaid === 'function') opts.onPaid(r); return r; };
+  async function payWithApplePay(orderData) {
 
     if (!applePayCanPresent()) {
       const modal = modalShell(
         'Apple Pay indisponibil aici',
         null,
-        'Apple Pay funcționează doar în Safari pe iPhone / Mac. Pe acest dispozitiv folosește butonul real ' +
-        '<strong>Google Pay</strong> de mai sus, cardul demo sau plata la tejghea.',
+        'Apple Pay funcționează doar în Safari pe iPhone / Mac. Pe acest dispozitiv folosește butonul ' +
+        '<strong>Google Pay</strong> de mai sus sau salvează comanda pentru plata la casă.',
         '<button type="button" id="apOk" style="flex:1;height:48px;border-radius:12px;border:none;background:#0F172A;color:#fff;font-weight:800;font-size:14px;">Am înțeles</button>'
       );
       modal.querySelector('#apOk').addEventListener('click', () => modal.remove());
@@ -344,21 +332,8 @@
     }
 
     if (!APPLE_MERCHANT_ID) {
-      // Static demo: explain + offer labeled demo continuation.
-      return new Promise((resolve, reject) => {
-        showApplePaySetupModal(orderData, {
-          onPaid: (r) => { done(r); resolve(r); }
-        });
-        const modal = document.getElementById('munchoPayModal');
-        if (modal) {
-          modal.addEventListener('click', function h(e) {
-            if (e.target === modal) {
-              modal.removeEventListener('click', h);
-              reject(new Error('Plata Apple Pay a fost anulată.'));
-            }
-          });
-        }
-      });
+      // No verified merchant on this host: explain instead of a fake sheet.
+      return showApplePaySetupModal();
     }
 
     // Merchant ID configured (future live setup): run the real session.
@@ -381,7 +356,7 @@
       }
       session.onvalidatemerchant = () => {
         try { session.abort(); } catch (e) {}
-        showApplePaySetupModal(orderData, { onPaid: (r) => { done(r); resolve(r); } });
+        showApplePaySetupModal().then(resolve).catch(reject);
       };
       session.oncancel = () => reject(new Error('Plata cu Apple Pay a fost anulată.'));
       session.onerror = () => reject(new Error('Apple Pay a raportat o eroare.'));
@@ -409,18 +384,6 @@
       throw new Error('Folosește butonul Google Pay de mai sus — se deschide foaia reală de plată.');
     },
 
-    payWithCard: async function (cardData, orderData) {
-      const cleanNum = (cardData.number || '').replace(/\D/g, '');
-      const holder = (cardData.name || '').trim();
-      if (!holder || holder.length < 3) {
-        throw new Error('Introdu numele complet de pe card.');
-      }
-      if (!CardUtils.validateLuhn(cleanNum)) {
-        throw new Error('Numărul cardului pare invalid. Verifică cifrele introduse.');
-      }
-      return PaymentProcessor.showDemoSheet('Card bancar (demo)', orderData);
-    },
-
     payWithCash: async function () {
       return {
         success: true,
@@ -428,43 +391,6 @@
         transactionId: 'cash_' + Date.now().toString(36),
         paidAt: new Date().toISOString()
       };
-    },
-
-    /**
-     * Honest demo modal — always labeled MOD DEMO, never mimics wallet sheets.
-     */
-    showDemoSheet: function (methodLabel, orderData) {
-      const total = Number(orderData && orderData.total ? orderData.total : 0).toFixed(2);
-      return new Promise((resolve, reject) => {
-        const modal = modalShell(
-          methodLabel,
-          DEMO_BADGE,
-          'Comerciant: <strong style="color:#0F172A;">' + STORE + '</strong><br>' +
-          'Total: <strong style="color:#0F172A;">' + total + ' ' + CURRENCY + '</strong><br><br>' +
-          'Comanda va fi trimisă la bucătărie prin canalul configurat (notificare + WhatsApp).',
-          '<button type="button" id="demoPayCancel" style="flex:1;height:48px;border-radius:12px;border:1px solid #E2E8F0;background:#fff;font-weight:700;font-size:14px;color:#0F172A;">Anulează</button>' +
-          '<button type="button" id="demoPayOk" style="flex:1;height:48px;border-radius:12px;border:none;background:#0F172A;color:#fff;font-weight:800;font-size:14px;">Confirmă demo</button>'
-        );
-        modal.querySelector('#demoPayCancel').addEventListener('click', () => {
-          modal.remove();
-          reject(new Error('Plata demo a fost anulată.'));
-        });
-        modal.querySelector('#demoPayOk').addEventListener('click', (e) => {
-          const btn = e.currentTarget;
-          btn.disabled = true;
-          btn.textContent = 'Se procesează…';
-          setTimeout(() => {
-            modal.remove();
-            resolve({
-              success: true,
-              demo: true,
-              method: 'DEMO',
-              transactionId: 'demo_' + Math.random().toString(36).substring(2, 10),
-              paidAt: new Date().toISOString()
-            });
-          }, 800);
-        });
-      });
     }
   };
 

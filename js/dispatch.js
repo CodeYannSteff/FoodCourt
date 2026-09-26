@@ -1,5 +1,5 @@
 /**
- * Muncho order dispatch — sends the paid/demo order to the restaurant
+ * Muncho order dispatch — sends the saved order to the restaurant
  * with pure frontend code (no backend, FTP / GitHub Pages safe).
  *
  * Channels (all optional, configured in js/config.js → dispatch):
@@ -18,13 +18,18 @@
     return (window.MUNCHO_CONFIG && window.MUNCHO_CONFIG.dispatch) || {};
   }
 
+  const METHOD_LABELS = {
+    TEJ: 'Plată la tejghea',
+    'GOOGLE PAY': 'Google Pay',
+    'APPLE PAY': 'Apple Pay',
+    CASH: 'Numerar'
+  };
+
   function plainTicket(order) {
     const lines = (order.items || []).map((i) => `• ${i.qty}x ${i.title} (${Number(i.price * i.qty).toFixed(2)} lei)`);
     return [
       `COMANDA MUNCHO #${order.code} — ${order.date || ''}`,
-      `Client: ${(order.customer && order.customer.name) || '-'} | Tel: ${(order.customer && order.customer.phone) || '-'}`,
-      `Note: ${(order.customer && order.customer.notes) || '-'}`,
-      `Plata: ${order.payMethod || '-'}${order.payTx ? ' (' + order.payTx + ')' : ''}${order.payDemo ? ' [DEMO]' : ''}`,
+      `Plata la casa: ${METHOD_LABELS[order.payMethod] || order.payMethod || '-'}${order.payTx ? ' (' + order.payTx + ')' : ''}`,
       `Produse:\n${lines.join('\n')}`,
       `TOTAL: ${Number(order.total).toFixed(2)} lei`
     ].join('\n');

@@ -15,36 +15,31 @@ window.MUNCHO_CONFIG = {
 
   // Payment & wallet settings (pure frontend — NO backend exists or is needed).
   //
-  // Honest processor note: no reputable processor (Stripe, Netopia, PayU,
-  // Revolut…) can take REAL card/Apple Pay charges from a purely static page —
-  // secret keys must stay server-side and amounts must be validated there.
-  // So this site runs:
-  //  - Google Pay TEST (real sheet, test token, no money moves) for demos, and
-  //  - clearly-labeled demo flows for card/Apple Pay.
-  // The finalized order (with its payment reference) is POSTed to YOUR api
-  // below — that webhook is the integration point for the restaurant's real
-  // order/billing system, no UI changes needed when you plug it in.
+  // Flow: the customer saves the order and gets a pickup code + QR ticket.
+  // The cashier scans the code (comanda.html) to see the summary and take
+  // payment at the register. Google Pay / Apple Pay buttons are offered as
+  // express options on top. The finalized order (with its payment reference)
+  // is POSTed to YOUR api below — that webhook is the integration point for
+  // the restaurant's real order/billing system.
   payments: {
-    // Google Pay: official test environment. The REAL Google Pay sheet opens
-    // (secure origins: https://… or http://localhost). No real money moves —
-    // Google returns a TEST token, perfect for demos.
-    googlePayEnvironment: 'TEST', // 'TEST' for demos, 'PRODUCTION' only with a live processor
+    // Google Pay: official test environment. The Google Pay sheet opens
+    // (secure origins: https://… or http://localhost). No money moves —
+    // Google returns a test token that is stored as the payment reference.
+    googlePayEnvironment: 'TEST', // 'TEST' now, 'PRODUCTION' only with a live processor
     merchantName: 'Muncho Food Court',
     countryCode: 'RO',
     currencyCode: 'RON',
 
-    // Apple Pay: the REAL Apple Pay sheet can only open once this site runs on
-    // a verified HTTPS domain with an Apple Merchant ID (see README).
-    // Leave empty for demo mode (the button explains the one-time setup).
+    // Apple Pay: the button appears only when a Merchant ID is set, and the
+    // real sheet additionally needs a verified HTTPS domain (see README).
     applePayMerchantIdentifier: '', // e.g. 'merchant.ro.muncho.foodcourt'
 
     enableGooglePay: true,
     enableApplePay: true,
-    enableCard: true, // demo card form (clearly labeled, no real charge)
-    enableCash: true  // Numerar la tejghea
+    enableSaveOrder: true // "Salvează Comanda" → pickup code + QR, pay at register
   },
 
-  // Where paid/demo orders go — all zero-backend, all optional:
+  // Where saved orders go — all zero-backend, all optional:
   dispatch: {
     // 1) Instant push to the counter: the restaurant opens
     //    https://ntfy.sh/muncho-sapori-comenzi (or the ntfy app) and every
