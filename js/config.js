@@ -13,21 +13,11 @@ window.MUNCHO_CONFIG = {
   currency: 'lei',
   serviceFeeRate: 0.05, // 5% service fee
 
-  // Booking ("Airbnb for your food"): reserve dishes for a pickup slot.
-  // Slots are generated between open/close, on a 15-minute grid after the
-  // venue's prep lead time. The customer arrives at the chosen time.
-  booking: {
-    open: '10:00',
-    close: '22:00',
-    slotMinutes: 15,       // grid size for slots
-    minLeadMinutes: 20,    // earliest a reservation can be made from now
-    slotCount: 10          // how many future slots to offer
-  },
-
   // Payment & wallet settings (pure frontend — NO backend exists or is needed).
   //
-  // Flow: the customer reserves the order for a pickup slot and gets a
-  // pickup code + QR ticket. The cashier scans the code (comanda.html) to
+  // Flow: the order is sent instantly to the kitchen; the customer gets a
+  // pickup code + QR ticket with a ready-in estimate. The cashier scans the
+  // code (comanda.html) to
   // see the summary and takes payment at the register. Google Pay / Apple
   // Pay buttons are offered as express options on top. The finalized order
   // (with its payment reference) is POSTed to the webhook below — that is

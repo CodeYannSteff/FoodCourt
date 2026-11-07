@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#F6F6F3" />
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
-  <title>Confirmă rezervarea — Muncho Food Court</title>
-  <link rel="stylesheet" href="css/main.css?v=34" />
+  <title>Confirmă comanda — Muncho Food Court</title>
+  <link rel="stylesheet" href="css/main.css?v=36" />
 </head>
 <body data-page="checkout">
 
@@ -17,7 +17,7 @@
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
       </a>
       <div style="text-align:center;flex:1;">
-        <h2 style="font-size:17px;">Confirmă rezervarea</h2>
+        <h2 style="font-size:17px;">Confirmă comanda</h2>
         <p style="font-size:11.5px;color:var(--ink-3);font-weight:700;">Ridicare · Argeș Mall, Nivel 1</p>
       </div>
       <a href="index.html" class="round-btn" style="opacity:0;pointer-events:none;" tabindex="-1" aria-hidden="true">
@@ -30,7 +30,7 @@
     <div id="booking-form">
 
       <!-- 1 · The order -->
-      <section class="page-pad" style="padding-top:16px;" aria-label="Preparatele rezervate">
+      <section class="page-pad" style="padding-top:16px;" aria-label="Preparatele comandate">
         <div class="card">
           <div class="card-head">
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
@@ -41,9 +41,9 @@
         </div>
       </section>
 
-      <!-- 2 · The booking moment: when will you arrive? -->
-      <section class="page-pad" aria-label="Ora ridicării" style="padding-top:8px;">
-        <div class="slot-card" id="slot-box"></div>
+      <!-- 2 · Instant-to-kitchen note (no hour reservation — the order goes out now) -->
+      <section class="page-pad" aria-label="Trimite la bucătărie" style="padding-top:8px;">
+        <div class="instant-mount" id="instant-box"></div>
       </section>
 
       <!-- 3 · Payment -->
@@ -75,14 +75,14 @@
       </p>
     </div>
 
-    <!-- Post-booking confirmation -->
+    <!-- Post-order confirmation -->
     <div id="booking-success" hidden>
       <section class="page-pad" style="padding-top:12px;">
         <div class="card success-hero">
           <div class="success-badge">
             <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
           </div>
-          <div class="success-kicker">Rezervare confirmată</div>
+          <div class="success-kicker">Comandă confirmată</div>
           <div class="success-code num" id="final-code">#M-100</div>
           <p class="success-sub">Prezintă codul la casa din <strong>Argeș Mall Food Court</strong></p>
 
@@ -90,7 +90,7 @@
 
           <div class="pickup-pill">
             <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
-            <span id="pickup-slot-label">Ridicare: —</span>
+            <span id="pickup-slot-label">Gata în ~20 min</span>
           </div>
           <p class="countdown num" id="slot-countdown" aria-live="polite"></p>
         </div>
@@ -112,19 +112,19 @@
         </div>
 
         <!-- Status timeline -->
-        <section class="card timeline" aria-label="Stadiul rezervării">
+        <section class="card timeline" aria-label="Cum se pregătește comanda">
           <ol>
             <li class="tl-step done">
               <span class="tl-dot">✓</span>
-              <div class="tl-body"><strong>Rezervare primită</strong><span id="tl-time">—</span></div>
+              <div class="tl-body"><strong>Trimisă la bucătărie</strong><span id="tl-time">—</span></div>
             </li>
             <li class="tl-step now">
               <span class="tl-dot">2</span>
-              <div class="tl-body"><strong>În pregătire</strong><span>Restaurantul primește tichetul tău</span></div>
+              <div class="tl-body"><strong>În pregătire</strong><span>Bucătarul are deja tichetul tău</span></div>
             </li>
             <li class="tl-step">
               <span class="tl-dot">3</span>
-              <div class="tl-body"><strong id="tl-slot">Gata la ridicare</strong><span>Prezinți codul · plătești la casă</span></div>
+              <div class="tl-body"><strong id="tl-slot">Gata de ridicare</strong><span>Prezinți codul · plătești la casă</span></div>
             </li>
           </ol>
         </section>
@@ -139,19 +139,19 @@
 
   <!-- Sticky booking CTA -->
   <div class="checkout-dock" id="checkout-dock">
-    <button type="button" class="btn-primary" id="btn-reserve" data-action="submit-order">Rezervă</button>
+    <button type="button" class="btn-primary" id="btn-reserve" data-action="submit-order">Trimite în bucătărie</button>
   </div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </div>
 
 <script src="js/menu.generated.js?v=3"></script>
-<script src="js/config.js?v=2"></script>
+<script src="js/config.js?v=3"></script>
 <script src="js/data.js?v=4"></script>
 <script src="js/sapori-bridge.js?v=1"></script>
 <script src="js/qrcode.min.js?v=1"></script>
 <script src="js/payment.js?v=4"></script>
 <script src="js/dispatch.js?v=1"></script>
-<script src="js/app.js?v=35"></script>
+<script src="js/app.js?v=36"></script>
 </body>
 </html>

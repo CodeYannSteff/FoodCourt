@@ -7,7 +7,7 @@
   <meta name="description" content="Rezervă-ți mâncarea din Food Court Argeș Mall — alege, alege ora, plătești la ridicare." />
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
   <title>Muncho — Rezervă mâncare · Food Court Argeș Mall</title>
-  <link rel="stylesheet" href="css/main.css?v=34" />
+  <link rel="stylesheet" href="css/main.css?v=36" />
 </head>
 <body data-page="feed">
 
@@ -68,19 +68,7 @@
     <section class="feed-blocks" id="dish-stream" aria-live="polite"></section>
   </main>
 
-  <!-- Floating tray — the commit bar -->
-  <div class="tray-dock" id="tray-dock" role="region" aria-label="Coșul curent">
-    <div class="tray-meta" data-action="open-cart-sheet" role="button" aria-label="Vezi și editează coșul">
-      <span class="tray-count" id="tray-count">0 produse</span>
-      <span class="tray-sum num" id="tray-sum">0,00 lei</span>
-    </div>
-    <button type="button" class="tray-cta" data-action="checkout-go">
-      Rezervă
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-    </button>
-  </div>
-
-  <!-- Floating tab bar -->
+  <!-- Tab bar (the cart lives in the Coș tab — indicated by a subtle dot) -->
   <nav class="tabbar" aria-label="Navigare principală">
     <a class="tab on" href="index.html" aria-current="page">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="21" height="21" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
@@ -150,9 +138,9 @@
 </div>
 
 <script src="js/menu.generated.js?v=3"></script>
-<script src="js/config.js?v=2"></script>
+<script src="js/config.js?v=3"></script>
 <script src="js/data.js?v=4"></script>
 <script src="js/sapori-bridge.js?v=1"></script>
-<script src="js/app.js?v=35"></script>
+<script src="js/app.js?v=36"></script>
 </body>
 </html>

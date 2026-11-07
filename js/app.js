@@ -24,10 +24,6 @@
   /* Romanian decimal comma, tabular digits — "45,00 lei" */
   const money = (n) => Number(n).toFixed(2).replace('.', ',') + ' lei';
   const num = (n) => Number(n).toFixed(2).replace('.', ',');
-  const BOOKING = Object.assign(
-    { open: '10:00', close: '22:00', slotMinutes: 15, minLeadMinutes: 20, slotCount: 10 },
-    cfg.booking || {}
-  );
 
   /* haptic — short, only at the moment of visual commit (§13 harmony) */
   const buzz = (ms = 8) => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
@@ -69,8 +65,6 @@
   let query = '';                  // feed search
   let venueQuery = '';             // merchant search
   let selectedPayMethod = 'TEJ';   // TEJ (register) | GOOGLE PAY | APPLE PAY | STRIPE
-  let selectedSlot = null;         // { kind: 'asap'|'time', label, day, ts }
-  let countdownTimer = null;
   let lastPlacedOrder = null;
 
   const qty = (id) => cart[id] || 0;
@@ -99,96 +93,20 @@
   };
 
   /* ==========================================================================
-     Booking slot engine — "Airbnb for your food"
-     Slots on a 15-min grid, starting after prep lead time, inside mall hours.
+     Instant-to-kitchen ETA — the order goes out the moment it is confirmed,
+     so we only estimate prep time from the slowest item in the cart.
      ========================================================================== */
-  const DAY_NAMES = ['Duminică', 'Luni', 'Marți', 'Miercuri', 'Joi', 'Vineri', 'Sâmbătă'];
-
-  function computeSlots() {
-    const grid = BOOKING.slotMinutes * 60000;
-    const open = parseHM(BOOKING.open);
-    const close = parseHM(BOOKING.close);
-    let first = Date.now() + maxLeadMinutes() * 60000;
-    first = Math.ceil(first / grid) * grid; // snap to grid, never before lead
-
-    let startDay = new Date(first); startDay.setHours(0, 0, 0, 0);
-    let dayStart = startDay.getTime();
-    let openAt = dayStart + open * 60000;
-    let closeAt = dayStart + close * 60000;
-
-    // roll to next day if we're past closing today (or before opening)
-    if (first > closeAt) {
-      dayStart += 86400000;
-      openAt = dayStart + open * 60000;
-      closeAt = dayStart + close * 60000;
-      first = Math.max(first, openAt - ((Date.now() + maxLeadMinutes() * 60000) % grid), openAt);
-    } else if (first < openAt) {
-      first = openAt;
-    }
-
-    const slots = [];
-    let t = first;
-    let rolled = first >= dayStart + 86400000; // not currently used; keeps guard simple
-    const now = Date.now();
-    while (slots.length < BOOKING.slotCount && t < closeAt) {
-      const when = new Date(t);
-      slots.push({
-        ts: t,
-        label: fmtHM(when),
-        day: dayLabel(when),
-        dayKey: when.toDateString(),
-        minutes: Math.round((t - now) / 60000)
-      });
-      t += grid;
-    }
-    // if nothing fits before closing, move to tomorrow's opening (rare late-night case)
-    if (!slots.length) {
-      let next = dayStart + 86400000 + open * 60000;
-      for (let i = 0; i < BOOKING.slotCount; i++) {
-        const when = new Date(next);
-        slots.push({
-          ts: next, label: fmtHM(when), day: dayLabel(when),
-          dayKey: when.toDateString(), minutes: Math.round((next - now) / 60000)
-        });
-        next += grid;
-      }
-    }
-    return slots;
+  function readyEtaMinutes() {
+    let mins = 20; // dish-level floor: hot grilled items in this court
+    Object.keys(cart).forEach((id) => {
+      const it = itemOf(id);
+      const m = it && String(it.eta || '').match(/(\d+)\s*$/);
+      if (m) mins = Math.max(mins, Number(m[1]));
+    });
+    return mins;
   }
-
-  function parseHM(hm) {
-    const [h, m] = String(hm).split(':').map(Number);
-    return (h || 0) * 60 + (m || 0);
-  }
-  function fmtHM(d) {
-    return d.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' });
-  }
-  function dayLabel(d) {
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    const that = new Date(d); that.setHours(0, 0, 0, 0);
-    const diff = Math.round((that - today) / 86400000);
-    if (diff === 0) return 'Astăzi';
-    if (diff === 1) return 'Mâine';
-    return DAY_NAMES[d.getDay()];
-  }
-
-  function initSlotSelection() {
-    const slots = computeSlots();
-    if (selectedSlot && slots.some((s) => s.ts === selectedSlot.ts)) return;
-    const first = slots[0];
-    selectedSlot = { kind: 'asap', ts: first.ts, label: first.label, day: first.day, minutes: first.minutes };
-  }
-
-  function slotDisplay() {
-    if (!selectedSlot) initSlotSelection();
-    if (selectedSlot.kind === 'asap') {
-      const soon = computeSlots()[0];
-      return { kind: 'asap', label: soon.label, day: soon.day, ts: soon.ts, eta: `în ~${soon.minutes} min` };
-    }
-    return {
-      kind: 'time', label: selectedSlot.label, day: selectedSlot.day, ts: selectedSlot.ts,
-      eta: `rezervat ${selectedSlot.day.toLowerCase()} ${selectedSlot.label}`
-    };
+  function readyEtaText(minutes) {
+    return `gata în ~${minutes || readyEtaMinutes()} min`;
   }
 
   /* ==========================================================================
@@ -271,28 +189,33 @@
   }
 
   /* ==========================================================================
-     Floating tray (dynamic-island commit bar)
+     Cart indicator — a subtle dot on the Coş tab (the tray pill was retired)
      ========================================================================== */
   function updateTray() {
-    const tray = $('#tray-dock');
     const n = cartItemCount();
-    if (!tray) return;
-    if (n > 0) {
-      tray.classList.add('up');
-      $('#tray-count').textContent = n === 1 ? '1 produs' : n + ' produse';
-      $('#tray-sum').textContent = money(cartTotal()).replace(' lei', ' lei');
-    } else {
-      tray.classList.remove('up');
-    }
     $$('.tab .bub').forEach((b) => {
       if (b.dataset.bub === 'orders') {
         b.hidden = orders.length === 0;
-        b.textContent = orders.length;
       } else {
         b.hidden = n === 0;
-        b.textContent = n;
       }
     });
+    // keep the accessible count on the tab that opens the cart
+    const cartTab = document.querySelector('[data-bub="cart"]')?.closest('.tab');
+    if (cartTab) {
+      cartTab.setAttribute('aria-label', n === 0
+        ? 'Coşul e gol — vezi coşul'
+        : `Coş, ${n === 1 ? 'un produs' : n + ' produse'}, total ${money(cartTotal())}`);
+    }
+  }
+
+  /* One-shot pulse on the cart dot — subtle "it moved" feedback, no toast */
+  function pulseCartDot() {
+    const b = document.querySelector('.bub[data-bub="cart"]');
+    if (!b || b.hidden) return;
+    b.classList.remove('ping');
+    void b.offsetWidth; /* restart the animation */
+    b.classList.add('ping');
   }
 
   function setQty(id, next) {
@@ -692,28 +615,18 @@
       </div>`;
   }
 
-  function slotPicker(compact) {
-    const slots = computeSlots();
-    if (!selectedSlot || !slots.some((s) => s.ts === selectedSlot.ts)) initSlotSelection();
-    const disp = slotDisplay();
+  /* Instant kitchen card — replaces the old slot picker */
+  function readyCard() {
+    const mins = readyEtaMinutes();
+    const eta = readyEtaText(mins);
     return `
-      <div class="slot-title">${compact ? ICONS.clock : ICONS.calendar}
-        <span>${compact ? 'Ridicare' : 'Când vii să ridici?'}</span>
-        <span class="free">fără cost</span>
-      </div>
-      ${compact ? '' : `
-      <div class="seg" role="tablist" aria-label="Mod de ridicare">
-        <button type="button" class="${selectedSlot.kind === 'asap' ? 'on' : ''}" data-action="slot-mode" data-mode="asap" role="tab" aria-selected="${selectedSlot.kind === 'asap'}">Cât mai repede</button>
-        <button type="button" class="${selectedSlot.kind === 'time' ? 'on' : ''}" data-action="slot-mode" data-mode="time" role="tab" aria-selected="${selectedSlot.kind === 'time'}">Rezervă ora</button>
-      </div>`}
-      <div class="slot-rail" ${compact ? 'aria-hidden="true"' : ''} ${compact ? 'hidden' : ''}>
-        ${slots.map((s) => `
-          <button type="button" class="slot-chip ${selectedSlot.kind === 'time' && selectedSlot.ts === s.ts ? 'on' : ''}"
-            data-action="slot" data-ts="${s.ts}" aria-pressed="${selectedSlot.kind === 'time' && selectedSlot.ts === s.ts}">
-            <span class="t">${s.label}</span><span class="d">${s.day}</span>
-          </button>`).join('')}
-      </div>
-      <p class="slot-note">${ICONS.check} Gata la <strong>&nbsp;${disp.label}</strong> · ${disp.day} · ${disp.eta}</p>`;
+      <div class="card instant-card">
+        <span class="instant-badge">${ICONS.zap}</span>
+        <div class="instant-copy">
+          <strong>Trimisă instant la bucătărie</strong>
+          <span>Confirmi acum — bucătarul primește tichetul în aceeași secundă. ${eta[0].toUpperCase() + eta.slice(1)} de la confirmare.</span>
+        </div>
+      </div>`;
   }
 
   function payOption(method, title, sub, iconHtml) {
@@ -734,7 +647,7 @@
     const hasApple = !!(cfg.payments && cfg.payments.enableApplePay);
 
     grid.innerHTML = [
-      payOption('TEJ', 'Plătești la ridicare', 'Rezervi acum, plătești la tejghea — fără card', ICONS.bag),
+      payOption('TEJ', 'Plătești la ridicare', 'Comanda pleacă acum la bucătărie — plătești la tejghea', ICONS.bag),
       hasGoogle ? payOption('GOOGLE PAY', 'Google Pay', 'Foaia Google Pay se deschide direct', ICONS.gpLogo) : '',
       hasApple ? payOption('APPLE PAY', 'Apple Pay', 'Doar în Safari (iPhone / Mac)', ICONS.appleLogo) : '',
       stripe ? payOption('STRIPE', 'Card (Stripe)', `Test · ${stripe.platformFeePercentage || 0}% taxă platformă`, ICONS.card) : ''
@@ -751,8 +664,8 @@
     if (!ids.length) {
       list.innerHTML = `
         <div class="empty-box">
-          <strong>Nu ai nimic rezervat</strong>
-          <p>Alege preparatele și revino aici pentru a-ți fixa ora.</p>
+          <strong>Nu ai nimic în comandă</strong>
+          <p>Alege preparatele și revino aici pentru a trimite comanda.</p>
           <a class="btn-secondary tap" href="index.html">Înapoi la food court</a>
         </div>`;
       totals.innerHTML = '';
@@ -769,10 +682,10 @@
       <div class="trow"><span>Serviciu Food Court (5%)</span><span class="num">${money(fee)}</span></div>
       <div class="trow grand"><span>Total</span><span class="num">${money(total)}</span></div>`;
 
-    if (submit) { submit.disabled = false; submit.textContent = `Rezervă · ${money(total).replace(' lei', '')} lei`; }
+    if (submit) { submit.disabled = false; submit.textContent = `Trimite în bucătărie · ${money(total).replace(' lei', '')} lei`; }
 
-    const slotBox = $('#slot-box');
-    if (slotBox) slotBox.innerHTML = slotPicker(false);
+    const instantBox = $('#instant-box');
+    if (instantBox) instantBox.innerHTML = readyCard();
 
     renderPayOptions();
     if (resetScroll !== false) window.scrollTo(0, 0);
@@ -785,7 +698,7 @@
       subtotal: cartSubtotal(),
       fee: cartFee(),
       total: cartTotal(),
-      slot: slotDisplay(),
+      readyMinutes: readyEtaMinutes(),
       customer: { name: '', phone: '', notes: '' }
     };
   }
@@ -814,7 +727,7 @@
       date: new Date().toLocaleDateString('ro-RO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }),
       itemsCount: cartItemCount(),
       items: data.items.map((x) => ({ title: x.item.title, qty: x.qty, price: x.item.price, venue: x.item.venue })),
-      slot: data.slot,
+      readyMinutes: data.readyMinutes,
       customer: data.customer,
       saporiCartId: (saporiSync && saporiSync.cartId) || null,
       saporiUrl: (saporiSync && saporiSync.directUrl) || null,
@@ -856,6 +769,7 @@
       t: Math.round(Number(order.total) * 100) / 100,
       m: order.payMethod,
       s: order.slot ? `${order.slot.label} · ${order.slot.day}` : '',
+      e: order.readyMinutes || null,
       i: (order.items || []).map((x) => [String(x.title).slice(0, 44), x.qty, x.price])
     };
     return btoa(unescape(encodeURIComponent(JSON.stringify(data))))
@@ -900,13 +814,13 @@
     $('#final-code').textContent = '#' + order.code;
 
     const slotPill = $('#pickup-slot-label');
-    if (slotPill) slotPill.textContent = `Ridicare: ${order.slot.day} · ${order.slot.label}`;
+    if (slotPill) slotPill.textContent = `Gata în ~${order.readyMinutes || readyEtaMinutes()} min`;
     const st = $('#success-total');
     if (st) st.textContent = money(order.total);
     const tt = $('#tl-time');
     if (tt) tt.textContent = `plasată ${order.date}`;
     const tsl = $('#tl-slot');
-    if (tsl) tsl.textContent = `Gata la ${order.slot.label}`;
+    if (tsl) tsl.textContent = `Gata în ~${order.readyMinutes || readyEtaMinutes()} min`;
 
     $('#success-summary').innerHTML = (order.items || []).map((x) => `
       <div class="rowline">
@@ -915,23 +829,9 @@
       </div>`).join('');
 
     renderQr(order);
-    startCountdown(order);
+    const cd = $('#slot-countdown');
+    if (cd) cd.textContent = 'Comanda a plecat instant la bucătărie — o poți ridica la tejghea împreună cu codul.';
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function startCountdown(order) {
-    const el = $('#slot-countdown');
-    if (!el) return;
-    clearInterval(countdownTimer);
-    const tick = () => {
-      const soon = order.slot && order.slot.ts ? order.slot.ts : computeSlots()[0].ts;
-      const mins = Math.round((soon - Date.now()) / 60000);
-      el.textContent = mins > 0
-        ? `Mâncarea ta va fi gata la ${order.slot.label} — în ${mins} min`
-        : 'Mâncarea ta ar trebui să fie gata — prezintă codul la tejghea';
-    };
-    tick();
-    countdownTimer = setInterval(tick, 30000);
   }
 
   async function handleReserve(explicitPayResult, explicitMethod) {
@@ -994,14 +894,14 @@
           <code>#${esc(o.code)}</code>
           <span class="num">${money(o.total)}</span>
         </div>
-        <div class="when">${esc(o.date)}${o.slot ? ' · ridicare ' + esc(o.slot.label) + ' (' + esc(o.slot.day) + ')' : ''}</div>
+        <div class="when">${esc(o.date)}${o.slot ? ' · ridicare ' + esc(o.slot.label) + ' (' + esc(o.slot.day) + ')' : ' · trimisă instant la bucătărie'}</div>
         <div class="items">${esc((o.items || []).map((x) => `${x.qty}× ${x.title}`).join(', '))}</div>
         <div class="when">Plată: ${esc(payLabel(o.payMethod))}</div>
       </div>`).join('');
     box.innerHTML = rows || `
       <div class="empty-box">
         <strong>Nicio comenzi încă</strong>
-        <p>Rezervările tale vor apărea aici, cu ora de ridicare.</p>
+        <p>Comenzile tale vor apărea aici, cu tichetul trimis bucătăriei.</p>
       </div>`;
   }
 
@@ -1017,7 +917,11 @@
     if (!t) return;
     const id = t.dataset.id;
     switch (t.dataset.action) {
-      case 'add': setQty(id, qty(id) + 1); toast(`Adăugat în coș ✓`); break;
+      case 'add': {
+        setQty(id, qty(id) + 1);
+        pulseCartDot();
+        break;
+      }
       case 'inc': setQty(id, qty(id) + 1); break;
       case 'dec': setQty(id, qty(id) - 1); break;
       case 'fav': {
@@ -1058,32 +962,6 @@
       case 'open-venues-sheet': renderVenuesSheet(); openSheet('venues-sheet'); break;
       case 'open-orders-sheet': renderOrdersSheet(); openSheet('orders-sheet'); break;
       case 'checkout-go': location.href = 'checkout.html'; break;
-      case 'slot-mode': {
-        if (t.dataset.mode === selectedSlot.kind) break;
-        const slots = computeSlots();
-        if (t.dataset.mode === 'asap') {
-          selectedSlot = { kind: 'asap', ts: slots[0].ts, label: slots[0].label, day: slots[0].day };
-        } else {
-          // keep the already-selected time chip, defaulting to the closest future one
-          const chosen = slots.find((s) => s.ts === (selectedSlot && selectedSlot.ts)) || slots[3] || slots[0];
-          selectedSlot = { kind: 'time', ts: chosen.ts, label: chosen.label, day: chosen.day };
-        }
-        const box = $('#slot-box');
-        if (box) box.innerHTML = slotPicker(false);
-        buzz(6);
-        break;
-      }
-      case 'slot': {
-        const slots = computeSlots();
-        const chosen = slots.find((s) => String(s.ts) === t.dataset.ts);
-        if (chosen) {
-          selectedSlot = { kind: 'time', ts: chosen.ts, label: chosen.label, day: chosen.day, minutes: chosen.minutes };
-          const box = $('#slot-box');
-          if (box) box.innerHTML = slotPicker(false);
-          buzz(6);
-        }
-        break;
-      }
       case 'pay-method': {
         selectedPayMethod = t.dataset.method;
         $$('#pay-options .pay-opt').forEach((b) =>
@@ -1105,7 +983,7 @@
       case 'whatsapp-ticket': {
         const o = lastPlacedOrder;
         if (!o) break;
-        const text = `Comandă Muncho ${'#' + o.code}\nRidicare: ${o.slot ? (o.slot.day + ' ' + o.slot.label) : new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}\n` +
+        const text = `Comandă Muncho ${'#' + o.code}\nTrimisă la bucătărie: ${new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })} · ${readyEtaText(o.readyMinutes)}\n` +
           (o.items || []).map((x) => `${x.qty}× ${x.title}`).join('\n') +
           `\nTotal: ${money(o.total)}`;
         window.open('https://wa.me/' + (cfg.whatsappNumber || '40770864679') + '?text=' + encodeURIComponent(text), '_blank');
@@ -1146,7 +1024,6 @@
      ========================================================================== */
   function init() {
     lastPlacedOrder = null;
-    initSlotSelection();
     initSheetDrag();
     updateTray();
 

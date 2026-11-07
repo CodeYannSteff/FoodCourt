@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#F6F6F3" />
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
   <title>Sumar Comandă — Muncho Food Court</title>
-  <link rel="stylesheet" href="css/main.css?v=34" />
+  <link rel="stylesheet" href="css/main.css?v=36" />
 </head>
 <body data-page="ticket">
 <div class="wrap">
@@ -108,8 +108,10 @@
   document.getElementById('ticket-date').textContent = t.d || '';
 
   const slotPill = document.getElementById('ticket-slot-pill');
-  if (t.s) {
-    document.getElementById('ticket-slot').textContent = 'Ridicare: ' + t.s;
+  if (t.e) {
+    document.getElementById('ticket-slot').textContent = 'Gata în ~' + t.e + ' min';
+  } else if (t.s) {
+    document.getElementById('ticket-slot').textContent = 'Ridicare: ' + t.s; // older tickets
   } else {
     slotPill.style.display = 'none';
   }

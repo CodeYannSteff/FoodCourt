@@ -847,67 +847,6 @@ button:active, .tap:active, .pressable:active { transform: scale(0.97); }
 }
 
 /* ============================================================================
-   Floating tray — the "dynamic island" commit bar (instantly visible status)
-   ========================================================================== */
-
-.tray-dock {
-  position: fixed;
-  inset-inline: 0;
-  margin-inline: auto; /* centered without transform — keeps hit-testing stable while children are :active */
-  bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 14px);
-  z-index: 45;
-  width: min(calc(100% - 40px), calc(var(--page-max) - 40px));
-  border-radius: var(--r-pill);
-  background: var(--ink);
-  color: #fff;
-  box-shadow: var(--shadow-float);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 9px 9px 9px 18px;
-  opacity: 0;
-  pointer-events: none;
-  translate: 0 14px;
-  scale: 0.96;
-  transition: opacity 200ms var(--ease-out), translate 320ms var(--spring-out),
-              scale 320ms var(--spring-out);
-}
-.tray-dock.up {
-  opacity: 1;
-  pointer-events: auto;
-  translate: 0 0;
-  scale: 1;
-}
-
-.tray-meta {
-  min-width: 0;
-  cursor: pointer; /* the tray's left side opens the cart sheet */
-  background: transparent;
-  border-radius: var(--r-pill);
-  padding: 5px 10px 5px 2px;
-  margin-left: -12px;
-  transition: background 160ms ease-out;
-}
-.tray-meta:active { background: rgba(255, 255, 255, 0.1); }
-.tray-count { font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.62); }
-.tray-sum { font-size: 16px; font-weight: 800; font-variant-numeric: tabular-nums; }
-.tray-cta {
-  flex: none;
-  height: 46px;
-  padding: 0 18px;
-  border-radius: var(--r-pill);
-  background: var(--accent);
-  color: var(--on-accent);
-  font-size: 14.5px;
-  font-weight: 800;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-}
-.tray-cta:active { background: var(--accent-press); }
-
-/* ============================================================================
    Tab bar — floating capsule material
    ========================================================================== */
 
@@ -951,21 +890,23 @@ button:active, .tap:active, .pressable:active { transform: scale(0.97); }
   color: var(--ink);
   background: rgba(27, 27, 26, 0.06);
 }
+/* Cart / orders indicator — one subtle dot at the icon's top-right */
 .tab .bub {
   position: absolute;
-  top: 7px;
-  right: calc(50% - 21px);
-  min-width: 17px;
-  height: 17px;
-  padding: 0 4px;
-  border-radius: var(--r-pill);
+  top: 6px;
+  right: calc(50% - 15px);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
   background: var(--accent);
-  color: var(--on-accent);
-  font-size: 10px;
-  font-weight: 800;
-  display: grid;
-  place-items: center;
-  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 2.5px var(--surface);
+  font-size: 0;      /* a dot carries meaning, not a number */
+}
+.tab .bub.ping { animation: dot-ping 460ms var(--spring-out); }
+@keyframes dot-ping {
+  0% { transform: scale(0.4); }
+  55% { transform: scale(1.65); }
+  100% { transform: scale(1); }
 }
 .tab .bub[hidden] { display: none; }
 }
@@ -1132,97 +1073,37 @@ button:active, .tap:active, .pressable:active { transform: scale(0.97); }
 .btn-secondary:active { background: var(--surface-2); }
 
 /* ============================================================================
-   Booking — pickup slot engine (the Airbnb moment)
+   Instant-to-kitchen card (replaces the slot picker)
    ========================================================================== */
 
-.slot-card {
+.instant-card {
   background: var(--surface);
   border: 1px solid var(--hairline);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-card);
-  padding: 16px;
-}
-
-.seg {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 1fr;
-  background: var(--surface-2);
-  border-radius: var(--r-sm);
-  padding: 3px;
-  gap: 3px;
-}
-.seg button {
-  height: 38px;
-  border-radius: 11px;
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--ink-2);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-.seg button.on {
-  background: var(--surface);
-  color: var(--ink);
-  box-shadow: 0 1px 4px rgba(27, 27, 26, 0.10);
-}
-
-.slot-title {
+  padding: 14px;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 15px;
-  font-weight: 800;
-  margin-bottom: 12px;
+  align-items: flex-start;
+  gap: 12px;
 }
-.slot-title svg { color: var(--accent); }
-.slot-title .free { margin-left: auto; font-size: 11px; font-weight: 700; color: var(--green); }
-
-.slot-rail {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  margin: 12px 0 2px;
-  padding-bottom: 4px;
-}
-.slot-rail::-webkit-scrollbar { display: none; }
-
-.slot-chip {
+.instant-badge {
   flex: none;
-  min-width: 64px;
-  height: 52px;
-  border-radius: var(--r-sm);
-  background: var(--surface-2);
-  border: 1.5px solid transparent;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1px;
-  transition: border-color 140ms ease-out, background 140ms ease-out;
-}
-.slot-chip .t { font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
-.slot-chip .d { font-size: 10px; font-weight: 700; color: var(--ink-3); }
-.slot-chip.on {
+  width: 36px; height: 36px;
+  border-radius: 50%;
   background: var(--accent-soft);
-  border-color: var(--accent);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
 }
-.slot-chip.on .t { color: var(--accent); }
-.slot-chip.on .d { color: var(--accent); }
-.slot-chip[aria-pressed="false"]:active { background: rgba(27, 27, 26, 0.07); }
-
-.slot-note {
-  display: flex;
-  align-items: center;
-  gap: 7px;
+.instant-copy { min-width: 0; }
+.instant-copy strong { display: block; font-size: 14px; }
+.instant-copy span {
+  display: block;
+  margin-top: 3px;
   font-size: 12px;
+  line-height: 1.45;
   color: var(--ink-2);
-  margin-top: 10px;
 }
-.slot-note svg { flex: none; color: var(--green); }
 
 /* ============================================================================
    Payment — option list (radio group)

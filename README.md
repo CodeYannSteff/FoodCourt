@@ -32,23 +32,22 @@ Powered by **teen minds** · Argeș Mall · Pizzeria Sapori Italia live menu.
     photo) followed by a compact 2-column grid.
 - **Cart is always visible & editable**:
   - Bottom tab bar: `Acasă · Coș · Restaurante · Comenzi` (3 tabs on venue:
-    `Acasă · Coș · Comenzi`) with live count badges on **Coș** and **Comenzi**.
-  - The floating tray's left side is tappable → opens the **cart sheet** with
-    per-row steppers; quantities edit in lockstep with the background cards,
-    tray total and footer total on every page.
-  - Rows disappear automatically when their quantity reaches 0.
+    `Acasă · Coș · Comenzi`). A subtle **dot** on the Coș tab pulses once
+    every time an item is added — no popup interrupts the flow.
+  - The Coș tab opens the **cart sheet** with per-row steppers; quantities
+    edit in lockstep with the background cards and footer total on every
+    page. Rows disappear automatically when their quantity reaches 0.
 - **Mobile-First UX**:
   - 48px+ touch targets, iOS safe area inset support (`env(safe-area-inset-top)`, `env(safe-area-inset-bottom)`).
-  - Floating pill-shaped cart tray slides up when items are added; broad
-    bottom sheets (Cart, Restaurants, Orders) with drag-to-dismiss grips.
+  - Broad bottom sheets (Cart, Restaurants, Orders) with drag-to-dismiss grips.
 - **Ordering without accounts or forms** — the order is identified by its
-  pickup code; at checkout you pick a **pickup slot** (`Astăzi/Mâine · time
-  slot`) and get a ticket. No name/phone typing.
+  pickup code. No name/phone typing.
 - **Payments (100% static, no backend)**:
-  - **Salvează Comanda / Plată la tejghea (main flow):** the order is saved
-    with its slot; the customer gets a pickup code + QR ticket. The cashier
-    scans the code — `comanda.html` opens the order summary — and takes
-    payment at the register.
+  - **Salvează Comanda / Plată la tejghea (main flow):** confirming sends the
+    order **instantly to the kitchen** (no hour reservation); the customer
+    gets a pickup code + QR ticket with a **"Gata în ~N min"** estimate. The
+    cashier scans the code — `comanda.html` opens the order summary — and
+    takes payment at the register.
   - **Google Pay**: official Google Pay button in TEST mode — opens the Google
     Pay sheet on secure origins (GitHub Pages / localhost), returns a test
     token stored as the payment reference.
@@ -59,8 +58,8 @@ Powered by **teen minds** · Argeș Mall · Pizzeria Sapori Italia live menu.
     every order pops up live), optional webhook POST of the order JSON to the
     restaurant's real order system, plus the existing WhatsApp ticket button.
 - **Order Tracking & Digital Receipt**:
-  - Animated order code `#M-###`, pickup slot pill and a live countdown
-    ("va fi gata la 10:00 — în 740 min").
+  - Animated order code `#M-###`, a "Gata în ~N min" ready pill and the
+    ntfy/webhook dispatch note ("tichet trimis la bucătărie").
   - Live 3-step progress timeline: `Comandă primită` → `În pregătire` → `Gata de ridicare`.
   - Order history saved to `localStorage` under `fc-orders` (feeds the
     Comenzi sheet + badge).
