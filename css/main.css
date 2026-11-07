@@ -1,928 +1,1641 @@
-/* ==========================================================================
-   Muncho — Authentic iOS Dynamic Liquid Glassmorphism & Fluid Mobile UI
-   Argeș Mall Food Court (Pitești, Nivel 1)
+/* ============================================================================
+   Muncho — Design System
+   Apple design language (materials, response, restraint) × M3 Expressive
+   (expressive radii, calm tonal surface, one confident accent) —
+   tuned to feel like Glovo / Uber Eats built by Apple: browse, book a slot,
+   pay when you arrive.
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  -webkit-tap-highlight-color: transparent;
-}
-
 :root {
-  /* Dynamic True Liquid Glass Tokens (Layered Refraction, Specular, Saturation) */
-  --liquid-glass-bg: rgba(255, 255, 255, 0.48);
-  --liquid-glass-bg-hover: rgba(255, 255, 255, 0.65);
-  --liquid-glass-pill: rgba(255, 255, 255, 0.58);
-  --liquid-glass-border: rgba(255, 255, 255, 0.75);
-  --liquid-glass-border-subtle: rgba(255, 255, 255, 0.45);
-  --liquid-glass-specular: inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.95), inset 0 -1px 1px 0 rgba(0, 0, 0, 0.04);
-  --liquid-glass-blur: blur(32px) saturate(210%);
-  --liquid-glass-shadow: 0 14px 34px -4px rgba(15, 23, 42, 0.1), 0 4px 12px rgba(15, 23, 42, 0.04);
+  color-scheme: light;
 
-  /* Colors */
-  --app-bg: #EDF1F7;
-  --text-main: #0B1320;
-  --text-sub: #435166;
-  --text-muted: #8E9BAE;
+  /* -- Surfaces ------------------------------------------------------------ */
+  --paper: #F6F6F3;              /* warm page ground */
+  --surface: #FFFFFF;           /* cards */
+  --surface-2: #F1F1ED;         /* recessed wells, search fields */
+  --scrim: rgba(20, 20, 19, 0.34);
 
-  /* Vibrant Accents */
-  --uber-green: #06C167;
-  --uber-green-dark: #059952;
-  --uber-green-glow: rgba(6, 193, 103, 0.35);
-  --glovo-yellow: #FFC244;
-  --brand-black: #0F172A;
-  --danger: #FF3B30;
+  /* -- Ink ----------------------------------------------------------------- */
+  --ink: #1B1B1A;               /* primary text */
+  --ink-2: rgba(27, 27, 26, 0.62);   /* secondary */
+  --ink-3: rgba(27, 27, 26, 0.40);   /* tertiary / hints */
+  --hairline: rgba(27, 27, 26, 0.08);
+  --hairline-strong: rgba(27, 27, 26, 0.14);
 
-  /* Radii */
-  --r-xs: 8px;
+  /* -- Accent (tomato — appetite, booking, "reserve") ----------------------- */
+  --accent: #E2492F;
+  --accent-press: #C63C25;
+  --accent-soft: rgba(226, 73, 47, 0.10);
+  --on-accent: #FFFFFF;
+
+  --amber: #B45309;             /* ratings */
+  --green: #1E7B4D;             /* success */
+  --danger: #B42318;
+  --danger-soft: #FEF3F2;
+
+  /* -- Raters (M3E) -------------------------------------------------------- */
+  --r-xs: 10px;
   --r-sm: 14px;
   --r-md: 20px;
-  --r-lg: 26px;
-  --r-xl: 34px;
-  --r-pill: 9999px;
+  --r-lg: 28px;                 /* expressive card radius */
+  --r-pill: 999px;
 
-  /* Apple iOS Native Fluid Spring & Cubic Bézier Physics */
-  --ease-spring: cubic-bezier(0.25, 1, 0.5, 1);
-  --ease-spring-snappy: cubic-bezier(0.32, 0.72, 0, 1);
-  --ease-smooth: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-ios-bounce: cubic-bezier(0.175, 0.885, 0.32, 1.15);
+  /* -- Elevation ----------------------------------------------------------- */
+  --shadow-card: 0 1px 2px rgba(27, 27, 26, 0.04), 0 10px 30px rgba(27, 27, 26, 0.05);
+  --shadow-float: 0 4px 10px rgba(27, 27, 26, 0.10), 0 16px 40px rgba(27, 27, 26, 0.16);
+  --shadow-sheet: 0 -12px 44px rgba(27, 27, 26, 0.22);
+
+  /* -- Motion -------------------------------------------------------------- */
+  --spring-out: cubic-bezier(0.34, 1.30, 0.64, 1);   /* sheets enter: tiny overshoot */
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);     /* entrances */
+  --press-dur: 110ms;
+
+  /* -- Materials ----------------------------------------------------------- */
+  --blur: saturate(180%) blur(20px);
+
+  /* -- Layout -------------------------------------------------------------- */
+  --page-max: 560px;
+  --rail-gap: 12px;
+  --tabbar-h: 64px;
+
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+
+  /* -- Legacy aliases (comanda.html inline styles still reference) ---------- */
+  --text-main: var(--ink);
+  --text-sub: var(--ink-2);
+  --text-muted: var(--ink-3);
+  --glass-border: var(--hairline);
+  --r-md-alias: var(--r-md);
 }
 
+/* ============================================================================
+   Base
+   ========================================================================== */
+
+* { box-sizing: border-box; }
+
 html {
-  font-size: 16px;
   -webkit-text-size-adjust: 100%;
-  scroll-behavior: smooth;
-  background-color: #EDF1F7;
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', Roboto, sans-serif;
-  color: var(--text-main);
-  background-color: var(--app-bg);
-  line-height: 1.45;
+  margin: 0;
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.47;                       /* comfortable body leading */
+  color: var(--ink);
+  background: var(--paper);
   -webkit-font-smoothing: antialiased;
-  min-height: 100vh;
-  overflow-x: hidden;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior-y: none;
 }
 
-/* Ambient Animated Liquid Aurora Mesh Behind Glass */
-.wrap {
-  width: 100%;
-  max-width: 520px;
-  margin: 0 auto;
-  min-height: 100vh;
-  position: relative;
-  overflow-x: hidden;
-  background: #EDF1F7;
-  box-shadow: 0 0 50px rgba(15, 23, 42, 0.08);
+h1, h2, h3, h4 {
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: -0.022em;                /* tighter as type grows */
+  line-height: 1.16;
 }
 
-@media (min-width: 560px) {
-  body {
-    padding: 24px 0;
-  }
-  .wrap {
-    border-radius: var(--r-xl);
-    min-height: calc(100vh - 48px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-  }
-}
+p { margin: 0; }
 
-/* Ambient Floating Glowing Orbs for dynamic liquid refraction */
-.ambient-aurora {
-  position: fixed;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(520px, 100vw);
-  height: 100vh;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-  contain: strict;
-}
-.aurora-blob {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(60px);
-  opacity: 0.5;
-  will-change: transform;
-  transform: translate3d(0, 0, 0);
-  animation: floatOrb 18s infinite alternate ease-in-out;
-}
-.aurora-1 {
-  width: 320px;
-  height: 320px;
-  background: radial-gradient(circle, rgba(6, 193, 103, 0.45) 0%, rgba(6, 193, 103, 0) 70%);
-  top: -40px;
-  right: -30px;
-}
-.aurora-2 {
-  width: 340px;
-  height: 340px;
-  background: radial-gradient(circle, rgba(255, 194, 68, 0.42) 0%, rgba(255, 194, 68, 0) 70%);
-  top: 240px;
-  left: -80px;
-  animation-duration: 22s;
-  animation-direction: alternate-reverse;
-}
-.aurora-3 {
-  width: 320px;
-  height: 320px;
-  background: radial-gradient(circle, rgba(0, 122, 255, 0.35) 0%, rgba(0, 122, 255, 0) 70%);
-  bottom: 120px;
-  right: -50px;
-  animation-duration: 26s;
-}
-
-@keyframes floatOrb {
-  0% { transform: translate3d(0, 0, 0) scale(1); }
-  50% { transform: translate3d(20px, 28px, 0) scale(1.08); }
-  100% { transform: translate3d(-18px, 16px, 0) scale(0.96); }
-}
-
-/* Ensure app content floats on top of aurora */
-header, main, nav, section, footer {
-  position: relative;
-  z-index: 1;
-}
+img { display: block; }
 
 button {
-  font: inherit;
+  font-family: inherit;
   color: inherit;
+  border: 0;
   background: none;
-  border: none;
+  padding: 0;
   cursor: pointer;
-  user-select: none;
-  touch-action: manipulation;
-  transition: transform 180ms var(--ease-spring), opacity 180ms ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-button:active:not(:disabled) {
-  transform: scale(0.97);
-}
+a { color: inherit; text-decoration: none; -webkit-tap-highlight-color: transparent; }
 
-input, textarea {
-  font: inherit;
-  color: inherit;
-  border: none;
+input {
+  font-family: inherit;
+  font-size: 16px;                         /* ≥16 prevents iOS zoom */
+  color: var(--ink);
+  border: 0;
+  background: transparent;
   outline: none;
-  background: none;
-  width: 100%;
+  min-width: 0;
+}
+input::placeholder { color: var(--ink-3); }
+
+.num {
+  font-variant-numeric: tabular-nums;      /* money never jitters */
+  letter-spacing: 0;
 }
 
-img {
+.wrap {
+  max-width: var(--page-max);
+  margin: 0 auto;
+  min-height: 100dvh;
+  background: var(--paper);
+  position: relative;
+}
+
+main {
   display: block;
-  max-width: 100%;
+  padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 96px);
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.num, .price, .t-total, .qv, .nbadge, .totals {
-  font-variant-numeric: tabular-nums;
+:focus-visible {
+  outline: 2.5px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
 }
 
 .sr-only {
   position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
+  width: 1px; height: 1px;
+  clip-path: inset(50%);
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
+  white-space: nowrap;
 }
 
-/* ==========================================================================
-   Clean Liquid Glass Header (No Status Bar — Pure App Focus)
+/* Instant response: everything pressable reacts on touch-down (§1 Response).
+   NOTE: only ever transform the pressed element itself — a :active rule on an
+   ancestor removes that ancestor's own transform too (e.g. a centering
+   translateX), which teleports the container mid-tap and makes the tap miss. */
+.tap,
+button,
+a {
+  transition: transform var(--press-dur) ease-out, opacity var(--press-dur) ease-out;
+}
+button:active, .tap:active, .pressable:active { transform: scale(0.97); }
+
+/* ============================================================================
+   Header — a translucent material, content scrolls beneath it (§12)
    ========================================================================== */
-.glass-header {
+
+.site-head {
   position: sticky;
   top: 0;
-  z-index: 45;
-  background: rgba(255, 255, 255, 0.42);
-  -webkit-backdrop-filter: var(--liquid-glass-blur);
-  backdrop-filter: var(--liquid-glass-blur);
-  border-bottom: 1px solid var(--liquid-glass-border-subtle);
-  box-shadow: 0 8px 30px -4px rgba(15, 23, 42, 0.06);
-  padding: calc(14px + env(safe-area-inset-top, 0px)) 16px 12px;
-  transition: background 200ms ease;
+  z-index: 40;
+  background: color-mix(in srgb, var(--paper) 78%, transparent);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  border-bottom: 1px solid rgba(27, 27, 26, 0.05);
+  padding: calc(12px + env(safe-area-inset-top, 0px)) 20px 12px;
 }
 
-/* Liquid Glass Search Input */
-.liquid-search-wrap {
+.head-scrolled .site-head { border-bottom-color: var(--hairline); }
+
+/* Brand row */
+.brand-row {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.68);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--liquid-glass-border);
-  border-radius: var(--r-pill);
-  padding: 0 16px;
-  height: 50px;
-  box-shadow: var(--liquid-glass-specular), 0 4px 16px rgba(15, 23, 42, 0.04);
-  transition: background 200ms ease, border-color 200ms ease, box-shadow 240ms var(--ease-smooth);
-}
-.liquid-search-wrap:focus-within {
-  background: rgba(255, 255, 255, 0.96);
-  border-color: var(--uber-green);
-  box-shadow: var(--liquid-glass-specular), 0 0 0 3px var(--uber-green-glow);
-}
-.liquid-search-wrap svg {
-  color: var(--text-muted);
-  flex-shrink: 0;
-}
-.liquid-search-wrap input {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--text-main);
-}
-.liquid-search-wrap input::placeholder {
-  color: #8E9BAE;
-  font-weight: 500;
-}
-.search-clear-btn {
-  font-size: 18px;
-  color: var(--text-muted);
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: none;
-  place-items: center;
-  flex-shrink: 0;
-}
-.search-clear-btn.show {
-  display: grid;
+  margin-bottom: 12px;
 }
 
-/* Category Pills Rail (Liquid Glass) */
-.glass-category-rail {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding: 12px 0 2px;
-  scrollbar-width: none;
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 21px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
-.glass-category-rail::-webkit-scrollbar {
-  display: none;
+.brand-mark {
+  width: 30px; height: 30px;
+  border-radius: 9px;
+  background: var(--accent);
+  display: grid;
+  place-items: center;
+  color: var(--on-accent);
+  flex: none;
 }
-.glass-cat-pill {
-  flex: 0 0 auto;
+.brand-mark svg { width: 17px; height: 17px; }
+
+/* Location pill (Glovo familiarity) */
+.loc-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.58);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--liquid-glass-border);
+  height: 38px;
+  padding: 0 14px;
   border-radius: var(--r-pill);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  box-shadow: 0 1px 3px rgba(27, 27, 26, 0.05);
   font-size: 13.5px;
   font-weight: 700;
-  color: var(--text-sub);
-  box-shadow: var(--liquid-glass-specular), 0 2px 8px rgba(15, 23, 42, 0.04);
-  transition: color 180ms ease, background 200ms ease, border-color 200ms ease, box-shadow 240ms var(--ease-smooth);
+  color: var(--ink);
+  max-width: 62%;
 }
-.glass-cat-pill:active {
-  transform: scale(0.97);
+.loc-pill svg { flex: none; color: var(--accent); }
+.loc-pill span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
-.glass-cat-pill.active {
-  background: var(--brand-black);
-  color: #FFFFFF;
-  border-color: var(--brand-black);
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18);
+.loc-pill .chev { color: var(--ink-3); }
+
+/* Search — recessed well, always calm */
+.search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 46px;
+  padding: 0 8px 0 15px;
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+  border: 1px solid transparent;
+  transition: border-color 160ms ease-out;
+}
+.search:focus-within {
+  border-color: var(--hairline-strong);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+.search svg { flex: none; color: var(--ink-3); }
+.search input { flex: 1; height: 100%; }
+.search input::-webkit-search-cancel-button { display: none; }
+
+.search-clear {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  display: none;
+  place-items: center;
+  color: var(--ink-3);
+  font-size: 19px;
+}
+.search.has-text .search-clear { display: grid; }
+
+/* Category chips rail */
+.chips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 12px 20px 14px;
+  margin: 0 -20px 0;
+  scroll-snap-type: x proximity;
+  /* snapport must match the visual padding or the first chip snaps flush to the edge */
+  scroll-padding-inline: 20px;
+}
+.chips::-webkit-scrollbar { display: none; }
+
+.chip {
+  flex: none;
+  scroll-snap-align: start;
+  height: 40px;
+  padding: 0 17px;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 160ms ease-out, color 160ms ease-out, border-color 160ms ease-out;
+}
+.chip svg { width: 15px; height: 15px; }
+.chip.on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
 }
 
-/* ==========================================================================
-   Section 1: Food Court Restaurant Showcase Cards (Argeș Mall)
+/* Sticky section rail on merchant page */
+.chips.sticky {
+  position: sticky;
+  top: calc(var(--head-h, 0px) + env(safe-area-inset-top, 0px));
+  z-index: 30;
+  background: color-mix(in srgb, var(--paper) 82%, transparent);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  border-bottom: 1px solid rgba(27, 27, 26, 0.05);
+  padding-top: 10px;
+  margin-top: 0;
+}
+
+/* ============================================================================
+   Sections & typography rhythm
    ========================================================================== */
-.feed-sec-header {
+
+.page-pad { padding-inline: 20px; }
+
+.sec-head {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  padding: 22px 18px 12px;
+  gap: 12px;
+  padding: 22px 20px 12px;
 }
-.feed-sec-header h2 {
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: var(--text-main);
-}
-.feed-sec-header span.sec-sub {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-muted);
-}
+.sec-head h2 { font-size: 20px; }
+.sec-sub { font-size: 12.5px; font-weight: 700; color: var(--ink-3); letter-spacing: 0.01em; }
+.sec-sub.wide { white-space: nowrap; }
 
-/* Horizontal Restaurant Carousel */
-.venues-horizontal-rail {
+/* Menu sections on the merchant page: head + lead row + grid */
+#venue-menu [data-section] {
   display: flex;
+  flex-direction: column;
   gap: 14px;
-  overflow-x: auto;
-  padding: 0 16px 14px;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: none;
+  padding-top: 2px;
 }
-.venues-horizontal-rail::-webkit-scrollbar {
-  display: none;
-}
+#venue-menu [data-section] .sec-head { padding-top: 10px; }
+#venue-menu .sec-head { padding-top: 10px; }
 
-.venue-card-hub {
-  flex: 0 0 260px;
-  scroll-snap-align: start;
-  background: var(--liquid-glass-bg);
-  -webkit-backdrop-filter: var(--liquid-glass-blur);
-  backdrop-filter: var(--liquid-glass-blur);
+/* Lead row of a merchant section — roomy anatomy, contrast to the grid */
+.vlead {
+  display: grid;
+  grid-template-columns: 1fr 112px;
+  gap: 12px;
+  margin: 0 20px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
   border-radius: var(--r-lg);
-  overflow: hidden;
-  box-shadow: var(--liquid-glass-shadow), var(--liquid-glass-specular);
-  border: 1px solid var(--liquid-glass-border);
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  transition: transform 300ms var(--ease-spring), box-shadow 300ms var(--ease-smooth);
-  will-change: transform;
+  box-shadow: var(--shadow-card);
+  padding: 13px;
+  position: relative;   /* anchors .fav-btn over the photo */
 }
-.venue-card-hub:active {
-  transform: scale(0.98);
-}
-.venue-card-cover {
-  height: 130px;
-  position: relative;
-  overflow: hidden;
-  background: #CBD5E1;
-}
-.venue-card-cover img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 500ms var(--ease-smooth);
-}
-.venue-card-hub:hover .venue-card-cover img {
-  transform: scale(1.03);
-}
-.venue-tag-glass {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: rgba(15, 23, 42, 0.65);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-  color: #FFFFFF;
-  font-size: 11px;
-  font-weight: 800;
-  padding: 4px 10px;
+.vlead .fav-btn { top: 8px; right: 8px; }
+.vl-copy { min-width: 0; display: flex; flex-direction: column; }
+.dish-flag {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 3px 9px;
   border-radius: var(--r-pill);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
-.venue-eta-glass {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  background: rgba(255, 255, 255, 0.88);
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
-  color: var(--text-main);
-  font-size: 11.5px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 10px;
   font-weight: 800;
-  padding: 4px 10px;
-  border-radius: var(--r-pill);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.9);
+  letter-spacing: 0.02em;
 }
-.venue-card-body {
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-.venue-card-title {
-  font-size: 16px;
-  font-weight: 800;
-  color: var(--text-main);
-  letter-spacing: -0.01em;
-}
-.venue-card-cat {
+.vl-title { font-size: 15px; font-weight: 800; line-height: 1.3; margin-top: 6px; }
+.vl-desc {
+  margin-top: 4px;
   font-size: 12px;
-  color: var(--text-sub);
-  margin-top: 2px;
+  line-height: 1.45;
+  color: var(--ink-2);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  max-height: 4.35em;
 }
-.venue-card-footer {
-  margin-top: 12px;
+.vl-foot {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 12.5px;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 10px;
 }
-.venue-card-footer .rating {
-  font-weight: 800;
-  color: #D97706;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-.btn-enter-venue {
-  font-size: 12px;
-  font-weight: 800;
-  color: #FFFFFF;
-  background: var(--brand-black);
-  padding: 6px 14px;
-  border-radius: var(--r-pill);
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* ==========================================================================
-   Section 2: Recommended Food Court Dishes (True Liquid Glass Cards)
-   ========================================================================== */
-.dishes-stream {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 0 16px;
-}
-.food-card-ios {
-  background: var(--liquid-glass-bg);
-  -webkit-backdrop-filter: var(--liquid-glass-blur);
-  backdrop-filter: var(--liquid-glass-blur);
-  border-radius: var(--r-lg);
-  padding: 14px;
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  box-shadow: var(--liquid-glass-shadow), var(--liquid-glass-specular);
-  border: 1px solid var(--liquid-glass-border);
+.vl-price { font-size: 16px; font-weight: 800; white-space: nowrap; }
+.vl-price small { font-size: 10px; color: var(--ink-3); font-weight: 700; }
+.vl-media {
   position: relative;
-  will-change: transform;
-  transition: transform 240ms var(--ease-spring), box-shadow 240ms var(--ease-smooth);
+  width: 112px;
+  height: 112px;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  background: var(--surface-2);
 }
-.food-card-ios:active {
-  transform: scale(0.985);
-}
-.food-card-content {
-  flex: 1;
-  min-width: 0;
+.vl-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+/* ============================================================================
+   Venue cards — horizontal rail (Glovo "stores" row)
+   ========================================================================== */
+
+.venues-rail {
   display: flex;
-  flex-direction: column;
+  gap: var(--rail-gap);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px 20px 8px;
+  scroll-snap-type: x mandatory;
 }
-.venue-origin-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+.venues-rail::-webkit-scrollbar { display: none; }
+
+.venue-card {
+  flex: none;
+  width: 236px;
+  scroll-snap-align: start;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  display: block;
+  scroll-margin-top: 200px;
+  scroll-margin-bottom: 220px;
+}
+.venue-card:active { transform: scale(0.985); }
+
+.venue-cover {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.venue-cover img { width: 100%; height: 100%; object-fit: cover; }
+
+.venue-flag {
+  position: absolute;
+  top: 10px; left: 10px;
+  padding: 5px 10px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.92);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   font-size: 10.5px;
   font-weight: 800;
-  color: var(--uber-green-dark);
-  background: rgba(6, 193, 103, 0.12);
-  padding: 2.5px 8px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+.venue-eta {
+  position: absolute;
+  bottom: 10px; right: 10px;
+  padding: 5px 10px;
   border-radius: var(--r-pill);
-  margin-bottom: 5px;
-  align-self: flex-start;
-  border: 1px solid rgba(6, 193, 103, 0.2);
-}
-.food-card-title {
-  font-size: 15.5px;
+  background: rgba(20, 20, 19, 0.66);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 11px;
   font-weight: 800;
-  line-height: 1.25;
-  color: var(--text-main);
-  margin-bottom: 4px;
+  font-variant-numeric: tabular-nums;
 }
-.food-card-desc {
+
+.venue-body { padding: 13px 15px 15px; }
+.venue-body h3 { font-size: 16px; margin-bottom: 3px; }
+.venue-cat {
   font-size: 12px;
-  color: var(--text-sub);
-  line-height: 1.35;
-  margin-bottom: 10px;
+  color: var(--ink-2);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.venue-stats {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 9px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.venue-stats svg { width: 13px; height: 13px; color: var(--amber); }
+.venue-stats .muted { color: var(--ink-3); font-weight: 600; }
+
+/* ============================================================================
+   Editorial feed — variable card shapes, brand overlay, separators
+   ========================================================================== */
+
+.feed-blocks { display: flex; flex-direction: column; gap: 22px; padding: 4px 0 0; }
+
+/* Every card exposes the control-refresh anchor and scroll clearance */
+[data-card] {
+  scroll-margin-top: 200px;
+  scroll-margin-bottom: 220px;
+}
+
+/* Brand logo integrated in every dish photo */
+.media-brand {
+  position: absolute;
+  left: 6px; bottom: 6px;
+  width: 27px; height: 27px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid #fff;
+  box-shadow: 0 1px 5px rgba(20, 20, 19, 0.28);
+  background: var(--surface-2);
+  z-index: 2;
+}
+.media-brand img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.media-brand.sm { width: 21px; height: 21px; left: 5px; bottom: 5px; }
+
+/* Soft gradient veil so badges/brand stay legible on bright photos */
+.media-veil {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 42%;
+  background: linear-gradient(180deg, rgba(20,20,19,0) 0%, rgba(20,20,19,0.12) 100%);
+  z-index: 1;
+}
+
+/* 1 · Featured duo — two confidence-first cards side by side */
+.feature-duo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 0 20px;
+  align-items: stretch;
+}
+.feature-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  min-width: 0;
+  position: relative; /* anchors .fav-btn over the photo */
+}
+.feature-card .fav-btn, .grid-card .fav-btn { top: 8px; right: 8px; }
+.feature-card .press { text-align: left; min-width: 0; display: block; }
+.f-media {
+  display: block;
+  position: relative;
+  aspect-ratio: 4 / 3.2;
+  background: var(--surface-2);
+}
+.f-media > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.f-badge {
+  position: absolute;
+  top: 7px; left: 7px;
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: #fff;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  z-index: 3;
+  max-width: calc(100% - 20px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.f-copy { display: block; padding: 9px 11px 2px; }
+.f-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  line-height: 1.28;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
-.food-card-price-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-.food-price {
-  font-size: 16px;
-  font-weight: 800;
-  color: var(--text-main);
-}
-.food-card-media {
-  width: 96px;
-  height: 96px;
-  border-radius: var(--r-md);
+.f-venue {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ink-3);
+  white-space: nowrap;
   overflow: hidden;
-  position: relative;
-  flex: 0 0 96px;
-  background: #E2E8F0;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+  text-overflow: ellipsis;
 }
-.food-card-media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* ==========================================================================
-   True Liquid Glass Detached Floating Pill Navigation Bar
-   — Fully reactive: content behind the bar refracts through the glass.
-   — Zero dark outlines or shadows.
-   ========================================================================== */
-.floating-pill-navbar {
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: max(16px, env(safe-area-inset-bottom, 0px));
-  z-index: 55;
-  width: min(420px, calc(100% - 32px));
-  height: 62px;
-  /* Low-opacity fill so backdrop-filter shows through */
-  background: rgba(255, 255, 255, 0.35);
-  -webkit-backdrop-filter: blur(40px) saturate(180%) brightness(1.05);
-  backdrop-filter: blur(40px) saturate(180%) brightness(1.05);
-  border-radius: var(--r-pill);
-  /* Subtle white glass edge — no dark border at all */
-  border: 0.5px solid rgba(255, 255, 255, 0.6);
-  /* Only white specular highlights — zero black/dark shadow layers */
-  box-shadow:
-    inset 0 1px 1px rgba(255, 255, 255, 0.85),
-    inset 0 -0.5px 0.5px rgba(255, 255, 255, 0.3),
-    0 4px 24px rgba(255, 255, 255, 0.08);
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 0 6px;
-  outline: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* Support: If backdrop-filter fails, fallback to opaque white */
-@supports not ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
-  .floating-pill-navbar {
-    background: rgba(255, 255, 255, 0.92);
-  }
-}
-
-.nav-island-tab {
-  flex: 1;
-  height: 46px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  border-radius: var(--r-pill);
-  font-size: 10.5px;
-  font-weight: 700;
-  color: var(--text-sub);
-  position: relative;
-  text-decoration: none;
-  transition: color 200ms ease, background 280ms var(--ease-smooth), box-shadow 280ms ease;
-  outline: none;
-  -webkit-tap-highlight-color: transparent;
-}
-.nav-island-tab svg {
-  width: 21px;
-  height: 21px;
-  stroke-width: 1.8;
-  transition: stroke-width 200ms ease;
-}
-.nav-island-tab:active {
-  transform: scale(0.95);
-  transition: transform 80ms ease;
-}
-.nav-island-tab.active {
-  color: var(--brand-black);
-  background: rgba(255, 255, 255, 0.65);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9);
-}
-.nav-island-tab.active svg {
-  stroke-width: 2.2;
-}
-.nav-bubble-badge {
-  position: absolute;
-  top: 2px;
-  right: calc(50% - 18px);
-  min-width: 17px;
-  height: 17px;
-  border-radius: var(--r-pill);
-  background: var(--uber-green);
-  color: #FFFFFF;
-  font-size: 9.5px;
-  font-weight: 800;
-  display: grid;
-  place-items: center;
-  border: 1.5px solid rgba(255, 255, 255, 0.9);
-  box-shadow: none;
-}
-
-/* ==========================================================================
-   Floating Cart Dynamic Island (Hovering above Nav Bar)
-   ========================================================================== */
-.floating-cart-island {
-  position: fixed;
-  left: 50%;
-  transform: translate3d(-50%, 140%, 0);
-  bottom: calc(90px + env(safe-area-inset-bottom, 0px));
-  z-index: 52;
-  width: min(420px, calc(100% - 32px));
-  height: 56px;
-  background: rgba(15, 23, 42, 0.94);
-  -webkit-backdrop-filter: blur(24px);
-  backdrop-filter: blur(24px);
-  color: #FFFFFF;
-  border-radius: var(--r-pill);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.35);
+.f-foot, .t-foot, .g-foot {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 10px 0 20px;
-  will-change: transform;
-  transition: transform 380ms var(--ease-spring);
+  gap: 6px;
+  padding: 7px 11px 11px;
+  margin-top: auto;
 }
-.floating-cart-island.show {
-  transform: translate3d(-50%, 0, 0);
-}
-.cart-island-meta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.cart-island-badge {
-  background: var(--uber-green);
-  color: #FFFFFF;
-  font-size: 11.5px;
-  font-weight: 800;
-  padding: 3px 9px;
-  border-radius: var(--r-pill);
-}
-.cart-island-sum {
-  font-size: 16px;
-  font-weight: 800;
-}
-.cart-island-action {
-  background: #FFFFFF;
-  color: var(--brand-black);
-  font-size: 13.5px;
-  font-weight: 800;
-  padding: 0 16px;
-  height: 40px;
-  border-radius: var(--r-pill);
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-}
+.f-price { font-size: 15.5px; font-weight: 800; white-space: nowrap; }
+.f-price small, .t-price small, .g-price small { font-size: 9.5px; color: var(--ink-3); font-weight: 700; }
+/* steppers shrink gracefully in the narrow two-up shape */
+.feature-card .stepper { height: 30px; transform-origin: right bottom; }
+.feature-card .stepper button { width: 30px; height: 30px; font-size: 15px; }
+.feature-card .add-btn { height: 30px; padding: 0 12px; font-size: 12px; }
 
-/* ==========================================================================
-   Controls: Steppers & Pill Buttons
-   ========================================================================== */
-.ios-add-btn {
-  background: var(--brand-black);
-  color: #FFFFFF;
-  font-size: 13px;
-  font-weight: 800;
-  height: 36px;
-  padding: 0 14px;
-  border-radius: var(--r-pill);
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.2);
-}
-.ios-stepper {
-  display: inline-flex;
-  align-items: center;
-  background: var(--brand-black);
-  color: #FFFFFF;
-  height: 36px;
-  padding: 0 3px;
-  border-radius: var(--r-pill);
-  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.2);
-}
-.ios-stepper button {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  color: #FFFFFF;
-  font-size: 16px;
-  font-weight: 800;
-  display: grid;
-  place-items: center;
-}
-.ios-stepper .qv {
-  min-width: 26px;
-  text-align: center;
-  font-size: 13.5px;
-  font-weight: 800;
-}
-.fav-heart-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.88);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  display: grid;
-  place-items: center;
-  color: var(--text-muted);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  z-index: 3;
-}
-.fav-heart-btn[aria-pressed="true"] {
-  color: var(--danger);
-}
-.fav-heart-btn[aria-pressed="true"] svg {
-  fill: currentColor;
-}
-
-/* ==========================================================================
-   Direct Sapori Kitchen Bridge Status
-   ========================================================================== */
-.sapori-direct-banner {
-  margin: 12px 16px;
-  background: rgba(6, 193, 103, 0.1);
-  -webkit-backdrop-filter: var(--liquid-glass-blur);
-  backdrop-filter: var(--liquid-glass-blur);
-  border: 1px solid rgba(6, 193, 103, 0.28);
-  border-radius: var(--r-md);
-  padding: 12px 14px;
+/* 2 · Venue jumps — circular brand rail, nonlinear shortcut layer */
+.vj-rail {
   display: flex;
-  align-items: center;
   gap: 10px;
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--text-main);
-  box-shadow: var(--liquid-glass-specular);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px 20px;
 }
-.sapori-direct-banner svg {
-  color: var(--uber-green-dark);
+.vj-rail::-webkit-scrollbar { display: none; }
+.vj {
   flex: none;
-}
-
-/* ==========================================================================
-   Bottom Sheets (Liquid Glass)
-   ========================================================================== */
-.modal-scrim-ios {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.45);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  z-index: 60;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 250ms ease;
-}
-.modal-scrim-ios.show {
-  opacity: 1;
-  visibility: visible;
-}
-.bottom-sheet-ios {
-  position: fixed;
-  left: 50%;
-  transform: translate3d(-50%, 105%, 0);
-  bottom: 0;
-  width: min(520px, 100%);
-  max-height: 88vh;
-  background: rgba(255, 255, 255, 0.9);
-  -webkit-backdrop-filter: var(--liquid-glass-blur);
-  backdrop-filter: var(--liquid-glass-blur);
-  border-radius: 32px 32px 0 0;
-  z-index: 65;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 -10px 40px rgba(15, 23, 42, 0.12);
-  border-top: 1px solid rgba(255, 255, 255, 0.85);
-  will-change: transform;
-  transition: transform 360ms var(--ease-spring);
-  overflow: hidden;
-}
-.bottom-sheet-ios.open {
-  transform: translate3d(-50%, 0, 0);
-}
-.sheet-drag-pill {
-  width: 38px;
-  height: 5px;
-  border-radius: var(--r-pill);
-  background: #CBD5E1;
-  margin: 10px auto 4px;
-}
-.sheet-head-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 18px 12px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-}
-.sheet-head-bar h3 {
-  font-size: 18px;
-  font-weight: 800;
-}
-.sheet-content-scroll {
-  overflow-y: auto;
-  padding: 16px;
-}
-.sheet-close-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.06);
-  display: grid;
-  place-items: center;
-  font-size: 20px;
-}
-
-/* ==========================================================================
-   Checkout Page Styles (Liquid Glass Card)
-   ========================================================================== */
-.checkout-glass-card {
-  margin: 14px 16px;
-  background: var(--liquid-glass-bg);
-  -webkit-backdrop-filter: var(--liquid-glass-blur);
-  backdrop-filter: var(--liquid-glass-blur);
-  border-radius: var(--r-lg);
-  padding: 16px;
-  box-shadow: var(--liquid-glass-shadow), var(--liquid-glass-specular);
-  border: 1px solid var(--liquid-glass-border);
-}
-.checkout-card-head {
-  font-size: 13.5px;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-sub);
-  margin-bottom: 12px;
-  display: flex;
   align-items: center;
   gap: 6px;
+  width: 84px;
+  animation: rise 560ms var(--spring-out) both;
 }
+.vj-logo {
+  width: 62px; height: 62px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid var(--surface);
+  box-shadow: var(--shadow-card), 0 0 0 1px var(--hairline);
+  background: var(--surface-2);
+  transition: transform var(--press-dur) ease-out;
+}
+.vj-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.vj:active .vj-logo { transform: scale(0.94); }
+.vj-name {
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.25;
+  text-align: center;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.vj-eta { font-size: 9.5px; color: var(--ink-3); font-weight: 700; }
 
-/* Payment Radio Cards */
-.pay-grid-ios {
+/* 3 · Scroll rail — square tiles */
+.tile-rail {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px 20px;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: 20px;
+}
+.tile-rail::-webkit-scrollbar { display: none; }
+.tile {
+  flex: none;
+  width: 150px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  min-width: 0;
+}
+.tile .press { text-align: left; min-width: 0; display: block; }
+.t-media { display: block; position: relative; aspect-ratio: 1 / 1; background: var(--surface-2); }
+.t-media > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.t-copy { display: block; padding: 8px 10px 2px; }
+.t-title {
+  font-size: 12.5px;
+  font-weight: 800;
+  line-height: 1.28;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.t-venue {
+  display: block;
+  margin-top: 2px;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.t-price, .g-price { font-size: 13.5px; font-weight: 800; white-space: nowrap; }
+.tile .stepper { height: 28px; }
+.tile .stepper button { width: 28px; height: 28px; font-size: 14px; }
+.tile .add-btn { height: 28px; padding: 0 10px; font-size: 11.5px; }
+
+/* 4 · Compact 2-up grid — the dense scanning layer */
+.dish-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+  padding: 0 20px;
+  align-items: stretch;
 }
-.pay-option-btn {
-  background: rgba(255, 255, 255, 0.6);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  border: 2px solid transparent;
-  border-radius: var(--r-md);
-  padding: 14px;
+.grid-card {
   display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  min-width: 0;
+  position: relative; /* anchors .fav-btn over the photo */
+}
+.grid-card .press { text-align: left; min-width: 0; display: block; }
+.g-media { display: block; position: relative; aspect-ratio: 1 / 1; background: var(--surface-2); }
+.g-media > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.g-copy { display: block; padding: 8px 10px 2px; }
+.g-venue {
+  display: block;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.g-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 12.5px;
+  font-weight: 800;
+  line-height: 1.28;
+  margin-top: 2px;
+}
+.grid-card .stepper { height: 28px; }
+.grid-card .stepper button { width: 28px; height: 28px; font-size: 14px; }
+.grid-card .add-btn { height: 28px; padding: 0 10px; font-size: 11.5px; }
+
+/* Separator with label — the rhythm layer between distinct blocks */
+.stream-sep {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 20px;
+  margin-top: 2px;
+}
+.stream-sep::before, .stream-sep::after {
+  content: "";
+  height: 1px;
+  background: var(--hairline);
+  flex: 1;
+}
+.stream-sep span {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+/* Favorite heart — status feedback, never a blocker */
+.fav-btn {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 30px; height: 30px;
+  padding: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.88);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: var(--ink-2);
+  z-index: 3;
+  transition: transform var(--press-dur) ease-out;
+}
+.fav-btn.on { color: var(--accent); }
+.fav-btn.on svg { fill: var(--accent); }
+
+/* ============================================================================
+   Stepper + Add button (the tray commit point)
+   ========================================================================== */
+
+.stepper {
+  display: inline-flex;
+  align-items: center;
+  height: 36px;
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  overflow: hidden;
+}
+.stepper button {
+  width: 36px; height: 36px;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.stepper button:active { background: rgba(226, 73, 47, 0.12); }
+.stepper .qv {
+  min-width: 22px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 14px;
+}
+
+.add-btn {
+  height: 36px;
+  padding: 0 16px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 13.5px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.add-btn:active { background: var(--accent-press); }
+
+/* Icon-only round action (back, close) */
+.round-btn {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  display: inline-grid;
+  place-items: center;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  box-shadow: 0 1px 4px rgba(27, 27, 26, 0.08);
+  color: var(--ink);
+}
+.round-btn.on-glass {
+  background: rgba(255, 255, 255, 0.9);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* ============================================================================
+   Floating tray — the "dynamic island" commit bar (instantly visible status)
+   ========================================================================== */
+
+.tray-dock {
+  position: fixed;
+  inset-inline: 0;
+  margin-inline: auto; /* centered without transform — keeps hit-testing stable while children are :active */
+  bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 14px);
+  z-index: 45;
+  width: min(calc(100% - 40px), calc(var(--page-max) - 40px));
+  border-radius: var(--r-pill);
+  background: var(--ink);
+  color: #fff;
+  box-shadow: var(--shadow-float);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 9px 9px 9px 18px;
+  opacity: 0;
+  pointer-events: none;
+  translate: 0 14px;
+  scale: 0.96;
+  transition: opacity 200ms var(--ease-out), translate 320ms var(--spring-out),
+              scale 320ms var(--spring-out);
+}
+.tray-dock.up {
+  opacity: 1;
+  pointer-events: auto;
+  translate: 0 0;
+  scale: 1;
+}
+
+.tray-meta {
+  min-width: 0;
+  cursor: pointer; /* the tray's left side opens the cart sheet */
+  background: transparent;
+  border-radius: var(--r-pill);
+  padding: 5px 10px 5px 2px;
+  margin-left: -12px;
+  transition: background 160ms ease-out;
+}
+.tray-meta:active { background: rgba(255, 255, 255, 0.1); }
+.tray-count { font-size: 11px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.62); }
+.tray-sum { font-size: 16px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.tray-cta {
+  flex: none;
+  height: 46px;
+  padding: 0 18px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 14.5px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.tray-cta:active { background: var(--accent-press); }
+
+/* ============================================================================
+   Tab bar — floating capsule material
+   ========================================================================== */
+
+.tabbar {
+  position: fixed;
+  inset-inline: 0;
+  margin-inline: auto;
+  bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  z-index: 44;
+  width: min(calc(100% - 40px), 340px);
+  height: var(--tabbar-h);
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  border: 1px solid rgba(27, 27, 26, 0.06);
+  box-shadow: var(--shadow-float);
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: stretch;
+  padding: 6px;
+  pointer-events: none;   /* dead zones pass taps through to content beneath */
+}
+.tabbar.three { grid-template-columns: repeat(3, 1fr); }
+.tabbar > * { pointer-events: auto; }
+.tab {
+  position: relative;
+  display: inline-flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  font-size: 13px;
+  gap: 3px;
+  border-radius: var(--r-pill);
+  color: var(--ink-3);
+  font-size: 10px;
   font-weight: 700;
-  box-shadow: var(--liquid-glass-specular);
-  transition: all 180ms ease;
+  letter-spacing: 0.01em;
 }
-.pay-option-btn.active {
-  background: #FFFFFF;
-  border-color: var(--brand-black);
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.1);
+.tab svg { width: 20px; height: 20px; }
+.tab.on {
+  color: var(--ink);
+  background: rgba(27, 27, 26, 0.06);
+}
+.tab .bub {
+  position: absolute;
+  top: 7px;
+  right: calc(50% - 21px);
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 10px;
+  font-weight: 800;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--surface);
+}
+.tab .bub[hidden] { display: none; }
 }
 
-/* Floating App Toast */
-.ios-toast {
+/* ============================================================================
+   Bottom sheets — materialized, drag-dismissible, spring entrance (§4, §12)
+   ========================================================================== */
+
+.sheet-scrim {
   position: fixed;
-  left: 50%;
-  transform: translate(-50%, -100px);
-  top: calc(14px + env(safe-area-inset-top, 0px));
-  z-index: 80;
-  background: rgba(15, 23, 42, 0.94);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
-  color: #FFFFFF;
+  inset: 0;
+  z-index: 60;
+  background: var(--scrim);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 240ms ease-out;
+}
+.sheet-scrim.dim { opacity: 1; pointer-events: auto; }
+
+.sheet {
+  position: fixed;
+  inset-inline: 0;
+  margin-inline: auto;
+  bottom: 0;
+  z-index: 61;
+  width: 100%;
+  max-width: var(--page-max);
+  max-height: min(86dvh, 780px);
+  background: var(--surface);
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  box-shadow: var(--shadow-sheet);
+  display: flex;
+  flex-direction: column;
+  /* enter/exit driven by translate — start from where it is (§3) */
+  translate: 0 102%;
+  transition: translate 420ms var(--spring-out);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  will-change: translate;
+}
+.sheet.up { translate: 0 0; }
+
+/* While the user drags, JS freezes the transition so tracking is 1:1 (§2) */
+.sheet.dragging { transition: none; }
+
+.sheet-grip {
+  padding: 9px 0 1px;
+  display: grid;
+  place-items: center;
+  touch-action: none;
+  cursor: grab;
+  flex: none;
+}
+.sheet-grip::before {
+  content: "";
+  width: 40px; height: 4.5px;
+  border-radius: 99px;
+  background: rgba(27, 27, 26, 0.16);
+}
+
+.sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 20px 12px;
+  flex: none;
+}
+.sheet-head h3 { font-size: 19px; }
+
+.sheet-body {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0 20px 16px;
+  -webkit-overflow-scrolling: touch;
+}
+.sheet-foot {
+  flex: none;
+  border-top: 1px solid var(--hairline);
+  padding: 14px 20px 16px;
+  background: var(--surface);
+}
+.sheet-foot .row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+.sheet-foot .row .lbl { font-size: 13.5px; color: var(--ink-2); font-weight: 700; }
+.sheet-foot .row .val { font-size: 19px; font-weight: 800; }
+
+/* Sheet list rows (cart items) */
+.rowline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(27, 27, 26, 0.05);
+}
+.rowline img {
+  width: 48px; height: 48px;
+  border-radius: var(--r-xs);
+  object-fit: cover;
+  flex: none;
+  background: var(--surface-2);
+}
+.rowline .grow { flex: 1; min-width: 0; }
+.rowline .grow strong {
+  display: block;
+  font-size: 14px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rowline .grow span { font-size: 12px; color: var(--ink-3); font-weight: 600; }
+.rowline .amount { font-size: 14px; font-weight: 800; }
+
+/* Right column of a cart row: steppers + line amount */
+.row-ctl {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+  flex: none;
+}
+.row-ctl .stepper { height: 30px; }
+.row-ctl .stepper button { width: 30px; height: 30px; font-size: 15px; }
+.row-ctl .add-btn { height: 30px; padding: 0 12px; font-size: 12px; }
+.cart-sheet-row + .cart-sheet-row { border-top: 0; }
+
+/* ============================================================================
+   Primary / secondary CTA buttons
+   ========================================================================== */
+
+.btn-primary {
+  width: 100%;
+  height: 54px;
+  border-radius: var(--r-md);
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 16px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-primary:active { background: var(--accent-press); }
+.btn-primary:disabled {
+  background: rgba(27, 27, 26, 0.12);
+  color: var(--ink-3);
+}
+
+.btn-secondary {
+  height: 48px;
+  padding: 0 18px;
   border-radius: var(--r-pill);
-  padding: 10px 22px;
+  background: var(--surface);
+  border: 1.5px solid var(--hairline-strong);
+  font-size: 14px;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-secondary:active { background: var(--surface-2); }
+
+/* ============================================================================
+   Booking — pickup slot engine (the Airbnb moment)
+   ========================================================================== */
+
+.slot-card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+  padding: 16px;
+}
+
+.seg {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  background: var(--surface-2);
+  border-radius: var(--r-sm);
+  padding: 3px;
+  gap: 3px;
+}
+.seg button {
+  height: 38px;
+  border-radius: 11px;
   font-size: 13.5px;
   font-weight: 700;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.28);
-  transition: transform 300ms var(--ease-spring);
-  pointer-events: none;
-  max-width: calc(100% - 32px);
-  text-align: center;
+  color: var(--ink-2);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
-.ios-toast.show {
-  transform: translate(-50%, 0);
+.seg button.on {
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 1px 4px rgba(27, 27, 26, 0.10);
+}
+
+.slot-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+.slot-title svg { color: var(--accent); }
+.slot-title .free { margin-left: auto; font-size: 11px; font-weight: 700; color: var(--green); }
+
+.slot-rail {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 12px 0 2px;
+  padding-bottom: 4px;
+}
+.slot-rail::-webkit-scrollbar { display: none; }
+
+.slot-chip {
+  flex: none;
+  min-width: 64px;
+  height: 52px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  border: 1.5px solid transparent;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  transition: border-color 140ms ease-out, background 140ms ease-out;
+}
+.slot-chip .t { font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.slot-chip .d { font-size: 10px; font-weight: 700; color: var(--ink-3); }
+.slot-chip.on {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.slot-chip.on .t { color: var(--accent); }
+.slot-chip.on .d { color: var(--accent); }
+.slot-chip[aria-pressed="false"]:active { background: rgba(27, 27, 26, 0.07); }
+
+.slot-note {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--ink-2);
+  margin-top: 10px;
+}
+.slot-note svg { flex: none; color: var(--green); }
+
+/* ============================================================================
+   Payment — option list (radio group)
+   ========================================================================== */
+
+.pay-list { display: flex; flex-direction: column; gap: 10px; }
+
+.pay-opt {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 58px;
+  padding: 10px 14px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  border: 1.5px solid var(--hairline);
+  text-align: left;
+}
+.pay-opt .pi { flex: none; width: 36px; height: 36px; display: grid; place-items: center; }
+.pay-opt .pt { flex: 1; min-width: 0; }
+.pay-opt .pt strong { display: block; font-size: 14px; font-weight: 800; }
+.pay-opt .pt span { display: block; font-size: 11.5px; color: var(--ink-3); font-weight: 600; margin-top: 1px; }
+.pay-opt .mark {
+  flex: none;
+  width: 21px; height: 21px;
+  border-radius: 50%;
+  border: 2px solid var(--hairline-strong);
+  display: grid;
+  place-items: center;
+}
+.pay-opt.on { border-color: var(--accent); background: var(--accent-soft); }
+.pay-opt.on .mark { border-color: var(--accent); background: var(--accent); }
+.pay-opt.on .mark::after {
+  content: "";
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.gpay-slot, .apay-slot { margin-bottom: 2px; }
+
+.pay-error {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--danger);
+  background: var(--danger-soft);
+  border: 1px solid #FECDCA;
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
+}
+
+/* ============================================================================
+   Cards (checkout / ticket)
+   ========================================================================== */
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-card);
+  padding: 16px;
+}
+.card + .card, .slot-card + .card, .card + .slot-card { margin-top: 12px; }
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(27, 27, 26, 0.05);
+  margin-bottom: 4px;
+}
+.card-head svg { width: 15px; height: 15px; }
+
+.totals { margin-top: 12px; padding-top: 10px; border-top: 1px dashed var(--hairline-strong); }
+.totals .trow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--ink-2);
+  padding: 3px 0;
+}
+.totals .trow.grand {
+  font-size: 16.5px;
+  font-weight: 800;
+  color: var(--ink);
+  padding-top: 9px;
+  margin-top: 5px;
+  border-top: 1px solid var(--hairline);
+}
+
+/* Sticky checkout CTA */
+.checkout-dock {
+  position: fixed;
+  inset-inline: 0;
+  margin-inline: auto; /* centered without transform — transform removal on :active broke real taps */
+  bottom: 0;
+  z-index: 43;
+  width: 100%;
+  max-width: var(--page-max);
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+  background: color-mix(in srgb, var(--paper) 86%, transparent);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  border-top: 1px solid rgba(27, 27, 26, 0.05);
+}
+
+/* Success screen */
+.success-hero { text-align: center; padding: 26px 18px 8px; }
+.success-badge {
+  width: 72px; height: 72px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 18px;
+  box-shadow: 0 10px 26px rgba(30, 123, 77, 0.35);
+  animation: pop 420ms var(--spring-out) 80ms both;
+}
+@keyframes pop {
+  from { scale: 0.4; opacity: 0; }
+  to { scale: 1; opacity: 1; }
+}
+.success-kicker {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.success-code {
+  font-size: 40px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 3px 0 2px;
+}
+.success-sub { font-size: 13.5px; color: var(--ink-2); }
+
+.ticket-qr {
+  display: inline-grid;
+  place-items: center;
+  background: #fff;
+  border: 2.5px solid var(--ink);
+  border-radius: var(--r-md);
+  padding: 12px;
+  margin: 18px auto 8px;
+  box-shadow: var(--shadow-card);
+}
+
+.pickup-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: var(--r-pill);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 800;
+  margin: 8px auto 2px;
+}
+.pickup-pill svg { width: 15px; height: 15px; }
+
+.countdown {
+  margin-top: 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Status timeline — M3E progress with animated fill */
+.timeline { margin: 22px 6px 4px; }
+.timeline ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+}
+.tl-step {
+  position: relative;
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 12px;
+  padding-bottom: 20px;
+}
+.tl-step::before {
+  content: "";
+  position: absolute;
+  left: 14.5px;
+  top: 30px;
+  bottom: 0;
+  width: 2px;
+  border-radius: 2px;
+  background: rgba(27, 27, 26, 0.10);
+}
+.tl-step:last-child { padding-bottom: 0; }
+.tl-step:last-child::before { display: none; }
+.tl-dot {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 800;
+  background: rgba(27, 27, 26, 0.06);
+  color: var(--ink-3);
+  position: relative;
+  z-index: 1;
+}
+.tl-step.done .tl-dot { background: var(--ink); color: var(--paper); }
+.tl-step.now .tl-dot {
+  background: var(--accent);
+  color: var(--on-accent);
+  box-shadow: 0 0 0 5px var(--accent-soft);
+}
+.tl-body strong { display: block; font-size: 13.5px; }
+.tl-body span { font-size: 11.5px; color: var(--ink-3); font-weight: 600; }
+
+/* Orders history rows */
+.order-row {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: 13px 15px;
+}
+.order-row + .order-row { margin-top: 10px; }
+.order-row .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.order-row code {
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: 15px;
+}
+.order-row .when { font-size: 11.5px; color: var(--ink-3); font-weight: 600; }
+.order-row .items { font-size: 12.5px; color: var(--ink-2); margin-top: 4px; }
+.order-row .amt { font-size: 14px; font-weight: 800; }
+
+/* Toast — appears without hijacking focus */
+.toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 72px);
+  z-index: 70;
+  max-width: calc(100% - 48px);
+  background: var(--ink);
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 700;
+  border-radius: var(--r-pill);
+  padding: 12px 18px;
+  box-shadow: var(--shadow-float);
+  opacity: 0;
+  translate: 0 10px;
+  pointer-events: none;
+  transition: opacity 200ms ease-out, translate 260ms var(--spring-out);
+}
+.toast.show { opacity: 1; translate: 0 0; }
+
+/* ============================================================================
+   Merchant page hero
+   ========================================================================== */
+
+.venue-hero {
+  position: relative;
+  height: 250px;
+  background: var(--surface-2);
+}
+.venue-hero img { width: 100%; height: 100%; object-fit: cover; }
+.venue-hero .hero-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(20,20,19,0.34) 0%, rgba(20,20,19,0) 34%);
+}
+.hero-controls {
+  position: absolute;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  left: 16px; right: 16px;
+  display: flex;
+  justify-content: space-between;
+  z-index: 5;
+}
+
+.venue-intro { padding: 18px 20px 4px; }
+.venue-intro .kicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 800;
+  color: var(--accent);
+}
+.venue-intro h1 { font-size: 26px; margin: 5px 0 8px; }
+.venue-intro .about { font-size: 13.5px; color: var(--ink-2); }
+
+.venue-pillrow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 20px 2px;
+}
+.stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 34px;
+  padding: 0 13px;
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  font-size: 12.5px;
+  font-weight: 700;
+}
+.stat-pill svg { width: 13px; height: 13px; color: var(--amber); }
+.stat-pill svg.plain { color: var(--ink-2); }
+
+.info-note {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-md);
+  padding: 13px 15px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+}
+.info-note svg { flex: none; color: var(--accent); margin-top: 1px; }
+.info-note strong { color: var(--ink); }
+
+/* ============================================================================
+   Ticket (cashier) page
+   ========================================================================== */
+
+.paid-row {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink-2);
+}
+.paid-row svg { color: var(--green); }
+
+/* ============================================================================
+   Header scrolled hairline
+   ========================================================================== */
+
+.empty-box {
+  text-align: center;
+  padding: 46px 20px;
+  color: var(--ink-2);
+}
+.empty-box strong { font-size: 15px; color: var(--ink); display: block; margin-bottom: 4px; }
+.empty-box p { font-size: 12.5px; color: var(--ink-3); margin-bottom: 16px; }
+
+/* ============================================================================
+   Entrance animation
+   ========================================================================== */
+
+.rise {
+  animation: rise 380ms var(--ease-out) both;
+}
+@keyframes rise {
+  from { opacity: 0; translate: 0 10px; }
+  to { opacity: 1; translate: 0 0; }
+}
+
+/* ============================================================================
+   Accessibility: honor the three signals (§14)
+   ========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .rise { animation: none; }
+  html { scroll-behavior: auto; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .site-head, .chips.sticky, .tabbar, .checkout-dock,
+  .venue-flag, .venue-eta, .fav-btn, .hero-controls .round-btn {
+    background: var(--surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .sheet-scrim { background: rgba(20, 20, 19, 0.6); }
+}
+
+@media (prefers-contrast: more) {
+  :root {
+    --hairline: rgba(27, 27, 26, 0.35);
+    --hairline-strong: rgba(27, 27, 26, 0.6);
+    --ink-3: rgba(27, 27, 26, 0.55);
+    --ink-2: rgba(27, 27, 26, 0.8);
+  }
+  .site-head, .tabbar, .chips.sticky, .checkout-dock {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--paper);
+    border-color: var(--hairline-strong);
+  }
 }

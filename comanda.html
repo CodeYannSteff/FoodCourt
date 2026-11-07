@@ -1,46 +1,69 @@
 <!doctype html>
 <html lang="ro">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#F4F6F9" />
-<link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
-<title>Sumar Comandă — Muncho Food Court</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/main.css?v=14" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#F6F6F3" />
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+  <title>Sumar Comandă — Muncho Food Court</title>
+  <link rel="stylesheet" href="css/main.css?v=34" />
 </head>
 <body data-page="ticket">
 <div class="wrap">
-  <header class="glass-header" style="display:flex;align-items:center;gap:14px;">
-    <a href="index.html" class="ios-add-btn" style="width:38px;height:38px;padding:0;justify-content:center;background:rgba(255,255,255,0.85);color:var(--text-main);box-shadow:var(--shadow-glass);" aria-label="Meniu">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
-    </a>
-    <div>
-      <h2 style="font-size:18px;font-weight:800;letter-spacing:-0.02em;">Sumar Comandă</h2>
-      <p style="font-size:11.5px;color:var(--text-sub);font-weight:600;">Argeș Mall · Food Court Nivel 1</p>
+  <header class="site-head">
+    <div class="brand-row" style="margin-bottom:0;">
+      <a href="index.html" class="round-btn" aria-label="Înapoi">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      </a>
+      <div style="text-align:center;flex:1;">
+        <h2 style="font-size:17px;">Sumar comandă</h2>
+        <p style="font-size:11.5px;color:var(--ink-3);font-weight:700;">Casa · Argeș Mall Food Court</p>
+      </div>
+      <span class="round-btn" style="opacity:0;" aria-hidden="true"></span>
     </div>
   </header>
 
   <main style="padding-bottom:60px;">
-    <div id="ticketError" hidden>
-      <div class="checkout-glass-card" style="text-align:center;padding:30px 18px;">
-        <p style="font-weight:800;font-size:16px;margin-bottom:6px;">Cod invalid sau expirat</p>
-        <p style="font-size:13px;color:var(--text-sub);">Scanează din nou codul de pe ecranul clientului.</p>
-        <a href="index.html" class="ios-add-btn" style="display:inline-flex;margin-top:14px;">Înapoi la meniu</a>
-      </div>
+    <div id="ticket-error" hidden>
+      <section class="page-pad" style="padding-top:20px;">
+        <div class="card" style="text-align:center;padding:30px 18px;">
+          <div style="width:64px;height:64px;border-radius:50%;background:var(--danger-soft);color:var(--danger);display:grid;place-items:center;margin:0 auto 14px;font-size:26px;font-weight:800;">?</div>
+          <p style="font-weight:800;font-size:16px;margin-bottom:6px;">Cod invalid sau expirat</p>
+          <p style="font-size:13px;color:var(--ink-2);">Scanează din nou codul de pe ecranul clientului.</p>
+          <a href="index.html" class="btn-secondary" style="display:inline-flex;margin-top:14px;">Înapoi la meniu</a>
+        </div>
+      </section>
     </div>
 
-    <div id="ticketCard" hidden>
-      <div class="checkout-glass-card" style="text-align:center;padding:26px 18px;">
-        <span style="font-size:12px;font-weight:800;color:var(--uber-green-dark);letter-spacing:0.06em;text-transform:uppercase;">De plătit la casă</span>
-        <div id="ticketCode" style="font-size:42px;font-weight:800;letter-spacing:-0.02em;margin:4px 0;">#M-100</div>
-        <div id="ticketDate" style="font-size:12px;color:var(--text-sub);font-weight:600;margin-bottom:16px;"></div>
-        <div id="ticketItems" style="text-align:left;"></div>
-        <div id="ticketTotal" style="display:flex;justify-content:space-between;font-size:18px;font-weight:800;padding-top:12px;margin-top:8px;border-top:1px solid rgba(0,0,0,0.08);"></div>
-        <div id="ticketMethod" style="font-size:12px;color:var(--text-sub);font-weight:600;margin-top:8px;"></div>
-      </div>
+    <div id="ticket-card" hidden>
+      <section class="page-pad" style="padding-top:16px;">
+        <div class="card" style="text-align:center;">
+          <div class="card-head" style="justify-content:center;">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1.5 2 1.5 2-1.5 2 1.5 2-1.5 2 1.5 2-1.5 2 1.5V2l-2 1.5L16 2l-2 1.5L12 2l-2 1.5L8 2 6 3.5 4 2z"/></svg>
+            De plătit la casă
+          </div>
+
+          <div class="success-code num" id="ticket-code" style="font-size:46px;">#M-100</div>
+          <div id="ticket-date" class="countdown" style="margin-top:6px;margin-bottom:4px;"></div>
+
+          <div class="pickup-pill" id="ticket-slot-pill">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            <span id="ticket-slot">Ridicare: —</span>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:12px;">
+          <div class="card-head">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
+            Preparate comandate
+          </div>
+          <div id="ticket-items"></div>
+          <div class="totals">
+            <div class="trow grand"><span>Total de încasat</span><span class="num" id="ticket-total">—</span></div>
+          </div>
+          <div class="paid-row" id="ticket-method" aria-label="Metoda de plată"></div>
+        </div>
+      </section>
     </div>
   </main>
 </div>
@@ -71,29 +94,43 @@
   }
 
   function money(v) {
-    return Number(v || 0).toFixed(2) + ' lei';
+    return Number(v || 0).toFixed(2).replace('.', ',') + ' lei';
   }
 
   const t = decodeTicket();
   if (!t) {
-    document.getElementById('ticketError').hidden = false;
+    document.getElementById('ticket-error').hidden = false;
     return;
   }
 
-  document.getElementById('ticketCard').hidden = false;
-  document.getElementById('ticketCode').textContent = '#' + t.c;
-  document.getElementById('ticketDate').textContent = t.d || '';
-  document.getElementById('ticketItems').innerHTML = t.i.map(function (row) {
+  document.getElementById('ticket-card').hidden = false;
+  document.getElementById('ticket-code').textContent = '#' + t.c;
+  document.getElementById('ticket-date').textContent = t.d || '';
+
+  const slotPill = document.getElementById('ticket-slot-pill');
+  if (t.s) {
+    document.getElementById('ticket-slot').textContent = 'Ridicare: ' + t.s;
+  } else {
+    slotPill.style.display = 'none';
+  }
+
+  document.getElementById('ticket-items').innerHTML = t.i.map(function (row) {
     const title = row[0], qty = row[1], price = row[2];
-    return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,0.06);">' +
-      '<span style="font-size:13.5px;font-weight:700;flex:1;">' + esc(title) + ' <span style="color:var(--text-muted);font-weight:600;">× ' + qty + '</span></span>' +
-      '<span class="num" style="font-size:14px;font-weight:800;">' + money(price * qty) + '</span>' +
+    return '<div class="rowline">' +
+      '<div class="grow"><strong>' + esc(title) + '</strong><span>cantitate: × ' + esc(qty) + '</span></div>' +
+      '<span class="num amount">' + money(price * qty) + '</span>' +
     '</div>';
   }).join('');
-  document.getElementById('ticketTotal').innerHTML =
-    '<span>Total de plată</span><span class="num">' + money(t.t) + '</span>';
-  const methodLabel = { TEJ: 'Plată la tejghea', 'GOOGLE PAY': 'Google Pay', 'APPLE PAY': 'Apple Pay', CASH: 'Numerar' }[t.m] || t.m || '';
-  document.getElementById('ticketMethod').textContent = methodLabel ? ('Canal: ' + methodLabel) : '';
+
+  document.getElementById('ticket-total').textContent = money(t.t);
+
+  const methodLabel = {
+    TEJ: 'Plată la ridicare', 'GOOGLE PAY': 'Google Pay', 'APPLE PAY': 'Apple Pay',
+    STRIPE: 'Card (Stripe)', CASH: 'Numerar', SAVE: 'Plată la ridicare'
+  }[t.m] || t.m || 'Plată la ridicare';
+  document.getElementById('ticket-method').innerHTML =
+    '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>' +
+    '<span>' + esc(methodLabel) + '</span>';
 })();
 </script>
 </body>

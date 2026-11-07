@@ -1,128 +1,111 @@
 <!doctype html>
 <html lang="ro">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#EDF1F7" />
-<link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
-<title>Restaurant — Muncho Food Court Argeș Mall</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="css/main.css?v=16" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#F6F6F3" />
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+  <title>Restaurant — Muncho Food Court Argeș Mall</title>
+  <link rel="stylesheet" href="css/main.css?v=34" />
 </head>
 <body data-page="venue">
+
 <div class="wrap">
-  <!-- Ambient Dynamic Aurora Glowing Orbs for Liquid Glass Refraction -->
-  <div class="ambient-aurora" aria-hidden="true">
-    <div class="aurora-blob aurora-1"></div>
-    <div class="aurora-blob aurora-2"></div>
-    <div class="aurora-blob aurora-3"></div>
-  </div>
+  <h1 class="sr-only">Meniul restaurantului din Food Court Argeș Mall</h1>
 
-  <main style="padding-bottom: 140px;">
-    <!-- Merchant Hero & Cover (Liquid Glass Controls) -->
-    <div id="mHeroContainer"></div>
+  <main style="padding-bottom: 220px;">
+    <!-- Hero cover -->
+    <div class="venue-hero" id="venue-hero"></div>
 
-    <!-- Sticky Category Navigation Bar (Liquid Glass) -->
-    <nav class="glass-category-rail" id="venueCategoryRail" style="position:sticky;top:0;z-index:35;background:var(--liquid-glass-bg);-webkit-backdrop-filter:var(--liquid-glass-blur);backdrop-filter:var(--liquid-glass-blur);padding:10px 16px;border-bottom:1px solid var(--liquid-glass-border-subtle);" aria-label="Categorii meniu"></nav>
+    <!-- Venue intro -->
+    <div class="venue-intro" id="venue-intro"></div>
+    <div class="venue-pillrow" id="venue-pillrow"></div>
 
-    <!-- Quick Search inside Venue Menu -->
-    <div style="padding: 12px 16px 4px;">
-      <div class="liquid-search-wrap">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2">
-          <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
-        </svg>
-        <input id="venueSearchInput" type="search" placeholder="Caută în meniul restaurantului..." autocomplete="off" aria-label="Caută în meniu" />
-        <button type="button" class="search-clear-btn" id="venueSearchClear" aria-label="Șterge">&times;</button>
+    <!-- Sticky section chips -->
+    <nav class="chips sticky" id="venue-chips" aria-label="Categorii meniu"></nav>
+
+    <!-- In-menu search -->
+    <div class="page-pad" style="padding-top:14px;">
+      <div class="search">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.1"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="venue-search-input" type="search" placeholder="Caută în meniul acestui restaurant…" autocomplete="off" aria-label="Caută în meniu" />
+        <button type="button" class="search-clear" id="venue-search-clear" hidden aria-label="Șterge căutarea">&times;</button>
       </div>
     </div>
 
-    <!-- Menu Sections & Dishes List -->
-    <div id="venueMenuContent"></div>
+    <!-- Menu sections -->
+    <div id="venue-menu"></div>
   </main>
 
-  <!-- Floating Cart Dynamic Island -->
-  <div class="floating-cart-island" id="floatingCartIsland" role="region" aria-label="Coș curent">
-    <div class="cart-island-meta">
-      <span class="cart-island-badge" id="cartIslandCount">0 produse</span>
-      <span class="cart-island-sum num" id="cartIslandTotal">0.00 lei</span>
+  <!-- Floating tray -->
+  <div class="tray-dock" id="tray-dock" role="region" aria-label="Coșul curent">
+    <div class="tray-meta" data-action="open-cart-sheet" role="button" aria-label="Vezi și editează coșul">
+      <span class="tray-count" id="tray-count">0 produse</span>
+      <span class="tray-sum num" id="tray-sum">0,00 lei</span>
     </div>
-    <button type="button" class="cart-island-action" id="cartIslandBtn">
-      Vezi coșul
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    <button type="button" class="tray-cta" data-action="checkout-go">
+      Rezervă
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
     </button>
   </div>
 
-  <!-- Detached Floating Pill Navigation Bar (iOS Glass Capsule) -->
-  <nav class="floating-pill-navbar" id="floatingPillNav" aria-label="Navigare principală">
-    <a class="nav-island-tab" href="index.html">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+  <!-- Floating tab bar -->
+  <nav class="tabbar three" aria-label="Navigare principală">
+    <a class="tab" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
       <span>Acasă</span>
     </a>
-    <button class="nav-island-tab active" id="navVenuesTab" type="button" aria-current="page">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9l1-5h14l1 5"/><path d="M4 9v11h16V9"/><path d="M4 9h16"/><path d="M9 20v-6h6v6"/></svg>
-      <span>Restaurante</span>
-    </button>
-    <button class="nav-island-tab" id="navCartTab" type="button">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+    <button class="tab" type="button" data-action="open-cart-sheet" aria-label="Vezi coșul">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/></svg>
       <span>Coș</span>
-      <span class="nav-bubble-badge num" id="cartCountBadge" hidden>0</span>
+      <span class="bub num" data-bub="cart" hidden>0</span>
+    </button>
+    <button class="tab" type="button" data-action="open-orders-sheet">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1.5 2 1.5 2-1.5 2 1.5 2-1.5 2 1.5 2-1.5 2 1.5V2l-2 1.5L16 2l-2 1.5L12 2l-2 1.5L8 2 6 3.5 4 2z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+      <span>Comenzi</span>
+      <span class="bub num" data-bub="orders" hidden>0</span>
     </button>
   </nav>
 
-  <!-- iOS Scrim Backdrop -->
-  <div class="modal-scrim-ios" id="modalScrimIos"></div>
+  <div class="sheet-scrim" id="sheet-scrim"></div>
 
-  <!-- Cart Bottom Sheet -->
-  <section class="bottom-sheet-ios" id="cartSheetIos" role="dialog" aria-modal="true" aria-label="Coșul tău">
-    <div class="sheet-drag-pill"></div>
-    <div class="sheet-head-bar">
+  <!-- Cart sheet -->
+  <section class="sheet" id="cart-sheet" role="dialog" aria-modal="true" aria-label="Coșul tău">
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <div class="sheet-head">
       <h3>Coșul tău</h3>
-      <button type="button" class="sheet-close-btn" id="cartSheetCloseBtn">&times;</button>
+      <button type="button" class="round-btn" data-action="close-sheet" aria-label="Închide">&times;</button>
     </div>
-    <div class="sheet-content-scroll" id="cartSheetList"></div>
-    <div style="border-top:1px solid rgba(0,0,0,0.06);padding:14px 18px calc(14px + env(safe-area-inset-bottom, 0px));background:rgba(255,255,255,0.85);backdrop-filter:blur(20px);">
-      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;">
-        <span style="font-size:14px;color:var(--text-sub);font-weight:700;">Total de plată</span>
-        <span id="cartSheetGrandTotal" class="num" style="font-size:19px;font-weight:800;">0.00 lei</span>
+    <div class="sheet-body" id="cart-sheet-body"></div>
+    <div class="sheet-foot" id="cart-sheet-foot">
+      <div class="row">
+        <span class="lbl">Total de plată</span>
+        <span class="val num" id="cart-sheet-total">0,00 lei</span>
       </div>
-      <button type="button" class="ios-add-btn" id="cartSheetCheckoutBtn" style="width:100%;height:52px;font-size:16px;justify-content:center;">
-        Continuă spre plată
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      <button type="button" class="btn-primary" data-action="checkout-go">
+        Continuă — alege ora ridicării
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
       </button>
     </div>
   </section>
 
-  <!-- Restaurants Picker Bottom Sheet -->
-  <section class="bottom-sheet-ios" id="venuesSheetIos" role="dialog" aria-modal="true" aria-label="Alege Restaurant">
-    <div class="sheet-drag-pill"></div>
-    <div class="sheet-head-bar">
-      <h3>Restaurante Argeș Mall</h3>
-      <button type="button" class="sheet-close-btn" id="venuesSheetCloseBtn">&times;</button>
+  <!-- Orders sheet -->
+  <section class="sheet" id="orders-sheet" role="dialog" aria-modal="true" aria-label="Rezervările tale">
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <div class="sheet-head">
+      <h3>Rezervările tale</h3>
+      <button type="button" class="round-btn" data-action="close-sheet" aria-label="Închide">&times;</button>
     </div>
-    <div class="sheet-content-scroll" id="venuesSheetList"></div>
+    <div class="sheet-body" id="orders-sheet-body"></div>
   </section>
 
-  <!-- Orders History Bottom Sheet -->
-  <section class="bottom-sheet-ios" id="ordersSheetIos" role="dialog" aria-modal="true" aria-label="Comenzile tale">
-    <div class="sheet-drag-pill"></div>
-    <div class="sheet-head-bar">
-      <h3>Comenzile tale</h3>
-      <button type="button" class="sheet-close-btn" id="ordersSheetCloseBtn">&times;</button>
-    </div>
-    <div class="sheet-content-scroll" id="ordersSheetList"></div>
-  </section>
-
-  <!-- iOS App Toast -->
-  <div class="ios-toast" id="iosToast" role="status" aria-live="polite"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </div>
 
 <script src="js/menu.generated.js?v=3"></script>
-<script src="js/config.js?v=1"></script>
+<script src="js/config.js?v=2"></script>
 <script src="js/data.js?v=4"></script>
 <script src="js/sapori-bridge.js?v=1"></script>
-<script src="js/payment.js?v=1"></script>
-<script src="js/app.js?v=15"></script>
+<script src="js/app.js?v=35"></script>
 </body>
 </html>

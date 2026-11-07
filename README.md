@@ -15,23 +15,40 @@ Powered by **teen minds** · Argeș Mall · Pizzeria Sapori Italia live menu.
   - Order mode toggle: `Ridicare` (Pickup) and `Livrare` (Delivery).
   - Instant live search bar with clear button (`✕`).
   - Circular category bubbles rail with high-res food imagery.
-- **Uber Eats-Inspired Feed & Store Pages**:
-  - Hero promotional carousel with snap scrolling and indicator dots.
-  - Dish cards featuring title, description, ratings (`★ 4.8`), prep time, price, and intuitive `+` add / stepper buttons.
-  - "Top Picks: Pizza" horizontal swipe rail.
-  - Sticky category pills bar on merchant page (`venue.html`) for quick section jumping.
+- **Editorial, non-linear feed (index.html)**:
+  - The dish stream is composed in blocks instead of one long list: a
+    **featured duo** (two large cards), a **"Pe local" venue-jump rail**
+    (circular venue logos), a **"Rapide de luat" scroll rail** (square tiles
+    with snap), and a dense **2-column grid** — all separated by labeled
+    hairline separators so the page has rhythm while you scroll.
+  - Every product photo carries the **venue's logo integrated over it**
+    (`.media-brand` badge + readability veil), on feed, rails, grid and menu.
+  - Filter/search views collapse gracefully to duo + grid with a live
+    "107 preparate" counter.
+- **Merchant page (venue.html)**:
+  - Hero cover with back button, ETA chip, **sticky category pills** and
+    in-section search.
+  - Each menu section = roomy **lead row** (description + brand badge on the
+    photo) followed by a compact 2-column grid.
+- **Cart is always visible & editable**:
+  - Bottom tab bar: `Acasă · Coș · Restaurante · Comenzi` (3 tabs on venue:
+    `Acasă · Coș · Comenzi`) with live count badges on **Coș** and **Comenzi**.
+  - The floating tray's left side is tappable → opens the **cart sheet** with
+    per-row steppers; quantities edit in lockstep with the background cards,
+    tray total and footer total on every page.
+  - Rows disappear automatically when their quantity reaches 0.
 - **Mobile-First UX**:
   - 48px+ touch targets, iOS safe area inset support (`env(safe-area-inset-top)`, `env(safe-area-inset-bottom)`).
-  - Floating pill-shaped cart tray that slides up when items are added.
-  - Smooth bottom sheets for Cart, Venue info, and Orders history.
-  - Fixed mobile bottom navigation bar (`Acasă`, `Caută`, `Meniu`, `Comenzi`, `Coș`).
-- **Ordering without accounts or forms**: no name/phone typing — the order is
-  identified by its pickup code. No "Comenzi" tab; the flow is menu → cart →
-  save → show code at the register.
+  - Floating pill-shaped cart tray slides up when items are added; broad
+    bottom sheets (Cart, Restaurants, Orders) with drag-to-dismiss grips.
+- **Ordering without accounts or forms** — the order is identified by its
+  pickup code; at checkout you pick a **pickup slot** (`Astăzi/Mâine · time
+  slot`) and get a ticket. No name/phone typing.
 - **Payments (100% static, no backend)**:
-  - **Salvează Comanda / Plată la tejghea (main flow):** the order is saved and
-    the customer gets a pickup code + QR ticket. The cashier scans the code —
-    `comanda.html` opens the order summary — and takes payment at the register.
+  - **Salvează Comanda / Plată la tejghea (main flow):** the order is saved
+    with its slot; the customer gets a pickup code + QR ticket. The cashier
+    scans the code — `comanda.html` opens the order summary — and takes
+    payment at the register.
   - **Google Pay**: official Google Pay button in TEST mode — opens the Google
     Pay sheet on secure origins (GitHub Pages / localhost), returns a test
     token stored as the payment reference.
@@ -42,9 +59,11 @@ Powered by **teen minds** · Argeș Mall · Pizzeria Sapori Italia live menu.
     every order pops up live), optional webhook POST of the order JSON to the
     restaurant's real order system, plus the existing WhatsApp ticket button.
 - **Order Tracking & Digital Receipt**:
-  - Animated order code `#M-###`.
+  - Animated order code `#M-###`, pickup slot pill and a live countdown
+    ("va fi gata la 10:00 — în 740 min").
   - Live 3-step progress timeline: `Comandă primită` → `În pregătire` → `Gata de ridicare`.
-  - Order history saved to `localStorage` under `fc-orders`.
+  - Order history saved to `localStorage` under `fc-orders` (feeds the
+    Comenzi sheet + badge).
 
 ---
 
