@@ -417,10 +417,27 @@
       </article>`;
   }
 
-  function gridCard(it) {
+  function gridCard(it, variant = 'grid', opts = {}) {
     const venue = venueOf(it.venue);
-    return `
-      <article class="grid-card" data-card data-id="${it.id}">
+    const venueLabel = opts.venueLabel !== false;
+    const span2 = variant === 'wide' || variant === 'wide-rev';
+    const rev = variant === 'wide-rev';
+    const press = span2
+      ? `
+        <button type="button" class="press w-press" data-action="open-venue" data-venue="${it.venue}" aria-label="Vezi ${esc(venue ? venue.name : 'meniul')}">
+          <span class="g-media">
+            <img src="${it.img}" alt="${esc(it.title)}" loading="lazy" />
+            <span class="media-veil"></span>
+            ${brandBadge(it.venue, 'sm')}
+          </span>
+          <span class="reg-copy">
+            ${venueLabel ? `<span class="g-venue">${esc(venue ? venue.name : '')}</span>` : ''}
+            <span class="g-title">${esc(it.title)}</span>
+            ${it.desc ? `<span class="w-desc">${esc(it.desc)}</span>` : ''}
+            <span class="g-price num">${priceHtml(it.price)}</span>
+          </span>
+        </button>`
+      : `
         <button type="button" class="press g-press" data-action="open-venue" data-venue="${it.venue}" aria-label="Vezi ${esc(venue ? venue.name : 'meniul')}">
           <span class="g-media">
             <img src="${it.img}" alt="${esc(it.title)}" loading="lazy" />
@@ -428,16 +445,33 @@
             ${brandBadge(it.venue)}
           </span>
           <span class="g-copy">
-            <span class="g-venue">${esc(venue ? venue.name : '')}</span>
+            ${venueLabel ? `<span class="g-venue">${esc(venue ? venue.name : '')}</span>` : ''}
             <span class="g-title">${esc(it.title)}</span>
+            ${variant === 'tall' && it.desc ? `<span class="g-desc">${esc(it.desc)}</span>` : ''}
           </span>
-        </button>
+        </button>`;
+    return `
+      <article class="grid-card${variant !== 'grid' ? ' ' + (span2 ? 'span2' : 'tall') : ''}${rev ? ' rev' : ''}" data-card data-id="${it.id}">
+        ${press}
         ${favBtn(it.id)}
         <div class="g-foot">
           <span class="g-price num">${priceHtml(it.price)}</span>
           <span class="ctl-slot">${renderControl(it.id)}</span>
         </div>
       </article>`;
+  }
+
+  /* Non-monotone lists — every ordinary grid gets the hero feed's rhythm:
+     small tiles, taller tiles, and full-width horizontal cards (plain and
+     mirrored), cycled with an offset per section so sections never repeat
+     the same score. */
+  const RHYTHM = [
+    'grid', 'tall', 'wide', 'grid', 'grid',
+    'grid', 'grid', 'wide-rev', 'tall', 'grid',
+    'tall', 'grid', 'wide', 'grid', 'grid'
+  ];
+  function composeGridCards(items, seed = 0, opts = {}) {
+    return items.map((it, i) => gridCard(it, RHYTHM[(i + seed) % RHYTHM.length], opts));
   }
 
   function venueJumpRail() {
@@ -501,10 +535,10 @@
       const more = rest.slice(4);
       if (more.length) {
         parts.push(sepBlock('Toate preparatele'));
-        parts.push(`<div class="dish-grid">${more.map(gridCard).join('')}</div>`);
+        parts.push(`<div class="dish-grid">${composeGridCards(more, 1).join('')}</div>`);
       }
     } else {
-      if (rest.length) parts.push(`<div class="dish-grid">${rest.map(gridCard).join('')}</div>`);
+      if (rest.length) parts.push(`<div class="dish-grid">${composeGridCards(rest, 2).join('')}</div>`);
     }
 
     list.innerHTML = parts.filter((p) => p && p.length > 1).join('');
@@ -570,7 +604,7 @@
       items = items.filter((i) => (i.title + ' ' + (i.desc || '') + ' ' + (i.cat || '')).toLowerCase().includes(q));
       box.innerHTML = `
         <div class="sec-head"><h2>Rezultate (${items.length})</h2></div>
-        <div class="dish-grid">${items.length ? items.map(gridCard).join('') :
+        <div class="dish-grid">${items.length ? composeGridCards(items, 1, { venueLabel: false }) :
           `<div class="empty-box"><p>Niciun preparat găsit.</p></div>`}</div>`;
       return;
     }
@@ -578,7 +612,7 @@
     const sections = (typeof SECTIONS !== 'undefined' && SECTIONS[v.id]) ? SECTIONS[v.id] : [];
     const shown = (venueFilter === 'All') ? sections : [venueFilter];
 
-    box.innerHTML = shown.map((sec) => {
+    box.innerHTML = shown.map((sec, bi) => {
       const secItems = items.filter((i) => i.cat === sec);
       if (!secItems.length) return '';
       const [lead, ...tail] = secItems;
@@ -586,7 +620,7 @@
         <section data-section="${esc(sec)}">
           <div class="sec-head"><h2>${esc(sec)}</h2><span class="sec-sub">${secItems.length} preparate</span></div>
           ${leadRow(lead)}
-          ${tail.length ? `<div class="dish-grid">${tail.map(gridCard).join('')}</div>` : ''}
+          ${tail.length ? `<div class="dish-grid">${composeGridCards(tail, bi * 5 + 3, { venueLabel: false }).join('')}</div>` : ''}
         </section>`;
     }).join('');
   }
