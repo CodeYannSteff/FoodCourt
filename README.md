@@ -49,11 +49,13 @@ Powered by **teen minds** · Argeș Mall · Pizzeria Sapori Italia live menu.
     gets a pickup code + QR ticket with a **"Gata în ~N min"** estimate. The
     cashier scans the code — `comanda.html` opens the order summary — and
     takes payment at the register.
-  - **Google Pay**: official Google Pay button in TEST mode — opens the Google
-    Pay sheet on secure origins (GitHub Pages / localhost), returns a test
-    token stored as the payment reference.
-  - **Apple Pay**: button appears only with a configured Merchant ID; the real
-    sheet additionally needs a verified HTTPS domain (see below).
+  - **Google Pay**: white "G Pay" wallet button (Google branding) next to the
+    Apple Pay one — tapping it opens the real Google Pay sheet on secure
+    origins (GitHub Pages / localhost), TEST mode, test token stored as the
+    payment reference.
+  - **Apple Pay**: black " Pay" wallet button, always visible; on Safari/iPhone
+    with a configured Merchant ID it opens the real Apple Pay sheet, elsewhere
+    tapping it explains the requirement (see below).
 - **Order dispatch to the restaurant**:
   - **Primary:** confirmed orders are POSTed to the restaurant's own integration
     API (Roweb `createvirtualcart`, same backend as
@@ -110,8 +112,8 @@ No build step, no server, no Node.js at runtime. Just upload the files.
    repo **root** (so `index.html` is at the top level).
 2. GitHub → repo **Settings → Pages** → *Deploy from a branch* → branch `main`, folder `/ (root)` → Save.
 3. Your site is live at `https://<user>.github.io/muncho-foodcourt/` in ~1 minute.
-4. Open `checkout.html` on your phone (Chrome/Android) → the real **Google Pay**
-   button appears; tapping it opens the genuine Google Pay sheet (TEST mode).
+4. Open `checkout.html` on your phone (Chrome/Android) → tap the **Google Pay**
+   button → the genuine Google Pay sheet opens (TEST mode).
 
 ### Any FTP / cPanel hosting
 Upload everything inside `FoodCourt/` to `public_html/` (FileZilla / WinSCP /

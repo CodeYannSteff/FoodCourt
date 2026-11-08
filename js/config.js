@@ -31,8 +31,9 @@ window.MUNCHO_CONFIG = {
     countryCode: 'RO',
     currencyCode: 'RON',
 
-    // Apple Pay: the button appears only when a Merchant ID is set, and the
-    // real sheet additionally needs a verified HTTPS domain (see README).
+    // Apple Pay: the button is always shown next to Google Pay; the real
+    // sheet additionally needs a Merchant ID + verified HTTPS domain (see
+    // README) — where payment isn't possible, tapping it explains why.
     applePayMerchantIdentifier: '', // e.g. 'merchant.ro.muncho.foodcourt'
 
     enableGooglePay: true,

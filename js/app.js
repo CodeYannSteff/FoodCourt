@@ -650,17 +650,13 @@
       stripe ? payOption('STRIPE', 'Card (Stripe)', `Test · ${stripe.platformFeePercentage || 0}% taxă platformă`, ICONS.card) : ''
     ].filter(Boolean).join('');
 
-    const apMount = $('#applepay-mount');
-    if (apMount) {
-      const appleEnabled = !!(cfg.payments && cfg.payments.enableApplePay && cfg.applePayMerchantIdentifier);
-      apMount.hidden = !(appleEnabled && window.MunchoPayments && window.MunchoPayments.applePayCanPresent());
-    }
-
-    const gbox = $('#gpay-box');
-    if (gbox) {
-      const googleEnabled = !!(cfg.payments && cfg.payments.enableGooglePay && window.MunchoPayments);
-      gbox.hidden = !googleEnabled;
-    }
+    // The two wallet buttons are hand-rendered in checkout.html (white
+    // Google Pay + black Apple Pay, side by side) and are always visible
+    // unless the operator disables the wallet in js/config.js.
+    const gBtn = $('.wallet-row .gpay-btn');
+    if (gBtn) gBtn.hidden = cfg.payments && cfg.payments.enableGooglePay === false;
+    const aBtn = $('.wallet-row .applepay-btn');
+    if (aBtn) aBtn.hidden = cfg.payments && cfg.payments.enableApplePay === false;
   }
 
   function renderCheckout(resetScroll) {
@@ -1002,6 +998,11 @@
         break;
       }
       case 'submit-order': handleReserve(); break;
+      case 'google-pay': {
+        if (!window.MunchoPayments) break;
+        window.MunchoPayments.triggerGooglePay();
+        break;
+      }
       case 'apple-pay': {
         if (!window.MunchoPayments) break;
         window.MunchoPayments.payWithApplePay(buildOrderData()).then((res) => {
@@ -1097,29 +1098,18 @@
     if (PAGE === 'checkout') {
       renderCheckout();
 
-      // Google Pay mount (real sheet on secure origins; graceful fallback otherwise)
+      // Google Pay client warm-up (real sheet opens on tap from the
+      // hand-rendered white button; Apple Pay handled by data-action)
       if (window.MunchoPayments && cfg.payments && cfg.payments.enableGooglePay) {
         window.MunchoPayments.initGooglePay({
           amount: cartTotal(),
           getCustomer: () => ({ name: '', phone: '', notes: '' }),
           validateCustomer: () => null,
-          onPaid: (payResult) => { selectedPayMethod = 'GOOGLE PAY'; handleReserve(payResult, 'GOOGLE PAY'); },
-          onUnavailable: (reason) => { showPayErrorBox(reason); }
+          onPaid: (payResult) => { selectedPayMethod = 'GOOGLE PAY'; handleReserve(payResult, 'GOOGLE PAY'); }
         });
-      } else {
-        const gbox = $('#gpay-box');
-        if (gbox) gbox.hidden = true;
       }
       renderPayOptions();
     }
-  }
-
-  function showPayErrorBox(msg) {
-    const box = $('#pay-error');
-    if (!box) return;
-    if (!msg) { box.hidden = true; box.textContent = ''; return; }
-    box.hidden = false;
-    box.textContent = msg;
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

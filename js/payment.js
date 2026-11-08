@@ -117,6 +117,7 @@
   let gpScriptPromise = null;
   let gpClient = null;
   let gpLastOpts = null;
+  let gpWarmup = null;
 
   function loadGooglePayScript() {
     if (gpScriptPromise) return gpScriptPromise;
@@ -219,57 +220,58 @@
     }
   }
 
-  /* When the Google Pay sheet isn't available (insecure origin, not ready),
-     the official button simply doesn't render and the reason surfaces in
-     the #pay-error box — no hand-rolled fallback button. */
-  function showGoogleFallback(reason) {
-    const mount = document.getElementById('googlePayMount');
-    if (mount) mount.innerHTML = '';
-    return reason;
-  }
-
+  /* No pre-mounted button — the wallets are hand-rendered in the payment
+     card. This only warms the Google Pay client so the sheet opens the
+     moment the Google Pay button is tapped; if the origin/device can't
+     support it the reason is recorded for the tap-time error box. */
   async function initGooglePay(opts) {
     opts = opts || {};
     gpLastOpts = opts;
-    const mount = document.getElementById('googlePayMount');
-    const box = document.getElementById('gpay-box');
-    if (box) box.hidden = false;
-    if (mount) mount.innerHTML = '';
+    delete opts._unavailableReason;
+    delete opts._notReady;
+    gpClient = null;
 
-    const unavailable = (reason) => {
-      opts._unavailableReason = reason;
-      showGoogleFallback(reason);
-      if (typeof opts.onUnavailable === 'function') opts.onUnavailable(reason);
-      return { available: false };
-    };
+    // one warm-up per option-object; later taps await the same promise
+    gpWarmup = (async () => {
+      const unavailable = (reason) => {
+        opts._unavailableReason = reason;
+        return { available: false };
+      };
 
-    try {
-      await loadGooglePayScript();
-    } catch (e) {
-      return unavailable(e.message);
-    }
-
-    try {
-      gpClient = getGooglePaymentsClient();
-      const ready = await gpClient.isReadyToPay({
-        apiVersion: 2,
-        apiVersionMinor: 0,
-        allowedPaymentMethods: [gpBaseCardMethod()]
-      });
-      if (!ready || !ready.result) {
-        opts._notReady = true;
-        return unavailable('Google Pay nu este disponibil pe acest dispozitiv/browser. Încearcă Chrome pe Android sau deschide site-ul prin HTTPS.');
+      try {
+        await loadGooglePayScript();
+      } catch (e) {
+        return unavailable(e.message);
       }
-    } catch (e) {
-      gpClient = null;
-      return unavailable('Google Pay necesită HTTPS (ex: GitHub Pages) sau localhost. Pe rețeaua locală http, salvează comanda pentru plata la tejghea.');
-    }
 
-    if (mount) {
-      const button = gpClient.createButton({ onClick: attemptGooglePaySheet });
-      mount.appendChild(button);
-    }
-    return { available: true };
+      try {
+        gpClient = getGooglePaymentsClient();
+        const ready = await gpClient.isReadyToPay({
+          apiVersion: 2,
+          apiVersionMinor: 0,
+          allowedPaymentMethods: [gpBaseCardMethod()]
+        });
+        if (!ready || !ready.result) {
+          opts._notReady = true;
+          return unavailable('Google Pay nu este disponibil pe acest dispozitiv/browser. Încearcă Chrome pe Android sau deschide site-ul prin HTTPS.');
+        }
+      } catch (e) {
+        gpClient = null;
+        return unavailable('Google Pay necesită HTTPS (ex: GitHub Pages) sau localhost. Pe rețeaua locală http, salvează comanda pentru plata la tejghea.');
+      }
+
+      return { available: true };
+    })();
+
+    return gpWarmup;
+  }
+
+  /* Tap handler for the white hand-rendered Google Pay button. Waits for
+     the warm-up (or re-warms if it never ran), then opens the real sheet. */
+  async function triggerGooglePay() {
+    if (!gpWarmup) gpWarmup = Promise.resolve(initGooglePay(gpLastOpts || {}));
+    try { await gpWarmup; } catch (e) { /* attemptGooglePaySheet surfaces it */ }
+    return attemptGooglePaySheet();
   }
 
   // ── Apple Pay ──
@@ -298,7 +300,7 @@
         'Apple Pay indisponibil aici',
         null,
         'Apple Pay funcționează doar în Safari pe iPhone / Mac. Pe acest dispozitiv folosește butonul ' +
-        '<strong>Google Pay</strong> de mai sus sau salvează comanda pentru plata la casă.',
+        '<strong>Google Pay</strong> alături în schimb sau plătește la tejghea.',
         '<button type="button" id="apOk" style="flex:1;height:48px;border-radius:12px;border:none;background:#0F172A;color:#fff;font-weight:800;font-size:14px;">Am înțeles</button>'
       );
       modal.querySelector('#apOk').addEventListener('click', () => modal.remove());
@@ -452,12 +454,13 @@
     googlePayEnvironment: function () { return GP_ENV; },
     applePayCanPresent: applePayCanPresent,
     initGooglePay: initGooglePay,
+    triggerGooglePay: triggerGooglePay,
     payWithApplePay: payWithApplePay,
 
     payWithGooglePay: async function (orderData, opts) {
-      const box = document.getElementById('gpay-box');
+      const box = document.querySelector('.wallet-row');
       if (box) box.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      throw new Error('Folosește butonul Google Pay de mai sus — se deschide foaia reală de plată.');
+      throw new Error('Folosește butonul Google Pay alături — se deschide foaia reală de plată.');
     },
 
     payWithCash: async function () {
