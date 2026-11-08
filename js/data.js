@@ -17,7 +17,7 @@ const VENUES = [
     phone: '0770 864 679',
     about: 'Pizzerie artizanală de familie — pizza pe vatră cu maia, paste autentice și preparate gătite pe loc.',
     hero: (typeof MENU !== 'undefined' && MENU.hero) ? MENU.hero : 'assets/img/p7385.jpg',
-    logo: (typeof MENU !== 'undefined' && MENU.items && MENU.items[0]) ? MENU.items[0].img : 'assets/img/p7385.jpg'
+    logo: 'assets/img/sapori-logo.png'
   },
   {
     id: 'burger',
