@@ -420,9 +420,20 @@
   function gridCard(it, variant = 'grid', opts = {}) {
     const venue = venueOf(it.venue);
     const venueLabel = opts.venueLabel !== false;
-    const span2 = variant === 'wide' || variant === 'wide-rev';
-    const rev = variant === 'wide-rev';
-    const press = span2
+    const strip = variant === 'wide' || variant === 'wide-rev';
+    const banner = variant === 'banner';
+    const isTall = variant === 'tall';
+    const mod = strip
+      ? ' span2 strip' + (variant === 'wide-rev' ? ' rev' : '')
+      : banner ? ' span2 banner'
+      : isTall ? ' tall' : '';
+    const label = venueLabel ? `<span class="g-venue">${esc(venue ? venue.name : '')}</span>` : '';
+    const desc = it.desc
+      ? (strip
+          ? `<span class="w-desc">${esc(it.desc)}</span>`
+          : (variant !== 'grid' ? `<span class="g-desc">${esc(it.desc)}</span>` : ''))
+      : '';
+    const press = strip
       ? `
         <button type="button" class="press w-press" data-action="open-venue" data-venue="${it.venue}" aria-label="Vezi ${esc(venue ? venue.name : 'meniul')}">
           <span class="g-media">
@@ -431,10 +442,9 @@
             ${brandBadge(it.venue, 'sm')}
           </span>
           <span class="reg-copy">
-            ${venueLabel ? `<span class="g-venue">${esc(venue ? venue.name : '')}</span>` : ''}
+            ${label}
             <span class="g-title">${esc(it.title)}</span>
-            ${it.desc ? `<span class="w-desc">${esc(it.desc)}</span>` : ''}
-            <span class="g-price num">${priceHtml(it.price)}</span>
+            ${desc}
           </span>
         </button>`
       : `
@@ -445,13 +455,13 @@
             ${brandBadge(it.venue)}
           </span>
           <span class="g-copy">
-            ${venueLabel ? `<span class="g-venue">${esc(venue ? venue.name : '')}</span>` : ''}
+            ${label}
             <span class="g-title">${esc(it.title)}</span>
-            ${variant === 'tall' && it.desc ? `<span class="g-desc">${esc(it.desc)}</span>` : ''}
+            ${desc}
           </span>
         </button>`;
     return `
-      <article class="grid-card${variant !== 'grid' ? ' ' + (span2 ? 'span2' : 'tall') : ''}${rev ? ' rev' : ''}" data-card data-id="${it.id}">
+      <article class="grid-card${mod}" data-card data-id="${it.id}">
         ${press}
         ${favBtn(it.id)}
         <div class="g-foot">
@@ -461,17 +471,33 @@
       </article>`;
   }
 
-  /* Non-monotone lists — every ordinary grid gets the hero feed's rhythm:
-     small tiles, taller tiles, and full-width horizontal cards (plain and
-     mirrored), cycled with an offset per section so sections never repeat
-     the same score. */
-  const RHYTHM = [
-    'grid', 'tall', 'wide', 'grid', 'grid',
-    'grid', 'grid', 'wide-rev', 'tall', 'grid',
-    'tall', 'grid', 'wide', 'grid', 'grid'
+  /* Row-coherent list rhythm — composition is done per ROW (two tiles or
+     one full-width card), never per card, so no row ever mixes heights.
+     Four distinct card sizes rotate through the score (pair squares,
+     tall pair, banner strip, horizontal strip, mirrored strip), and the
+     seed rotates the start phase per list/section so nothing stacks the
+     same way twice. */
+  const RROWS = [
+    'pair', 'talls', 'banner', 'pair', 'wide', 'pair',
+    'pair', 'wide-rev', 'talls', 'pair', 'wide', 'pair'
   ];
   function composeGridCards(items, seed = 0, opts = {}) {
-    return items.map((it, i) => gridCard(it, RHYTHM[(i + seed) % RHYTHM.length], opts));
+    const out = [];
+    let p = ((seed % RROWS.length) + RROWS.length) % RROWS.length;
+    let i = 0;
+    while (i < items.length) {
+      const row = RROWS[p % RROWS.length];
+      p += 1;
+      if (row === 'banner') { out.push(gridCard(items[i++], 'banner', opts)); continue; }
+      if (row === 'wide' || row === 'wide-rev') { out.push(gridCard(items[i++], row, opts)); continue; }
+      const variant = row === 'talls' ? 'tall' : 'grid';
+      const a = items[i++];
+      if (!a) break;
+      out.push(gridCard(a, variant, opts));
+      const b = items[i++];
+      if (b) out.push(gridCard(b, variant, opts));
+    }
+    return out;
   }
 
   function venueJumpRail() {
