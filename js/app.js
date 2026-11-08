@@ -128,9 +128,7 @@
     check: '<svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
     arrow: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>',
     info: '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M12 11v5"/></svg>',
-    zap: '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12L13 2z"/></svg>',
-    gpLogo: '<svg viewBox="0 0 48 48" width="19" height="19"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>',
-    appleLogo: '<svg viewBox="0 0 170 170" width="17" height="17" fill="currentColor"><path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.66-7.85-11.87-14.42-6.19-9.58-11.05-20.73-14.59-33.45-3.53-12.72-5.3-24.62-5.3-35.7 0-14.9 3.53-27.18 10.59-36.85 7.06-9.67 15.86-14.63 26.41-14.88 5.12 0 10.4 1.34 15.84 4.02 5.44 2.68 9.27 4.08 11.48 4.2 1.8 0 5.8-1.5 12-4.5 6.21-3.01 11.66-4.43 16.36-4.26 12.4.67 22.38 5.14 29.93 13.41-10.88 6.59-16.2 15.65-15.96 27.18.24 9.15 3.73 16.87 10.47 23.16 6.74 6.29 14.75 9.77 24.03 10.45-2.22 6.86-4.8 13.8-7.74 20.82zM119.22 31.84c0-7.18 2.6-13.85 7.8-20.01 5.2-6.16 11.66-9.96 19.38-11.41.24 1.08.36 2.05.36 2.9 0 7.06-2.73 13.79-8.19 20.19-5.46 6.4-12.02 10.15-19.68 11.25-.12-.96-.2-1.93-.2-2.92z"/></svg>'
+    zap: '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4.5 13.5H11L10 22l8.5-11.5H12L13 2z"/></svg>'
   };
 
   function toast(html) {
@@ -535,7 +533,7 @@
     const intro = $('#venue-intro');
     if (intro) {
       intro.innerHTML = `
-        <span class="kicker">${esc(v.directApi ? '⚡ Conexiune directă' : esc(v.tag || ''))}</span>
+        <span class="kicker">${esc(v.directApi ? 'Conexiune directă' : esc(v.tag || ''))}</span>
         <h1>${esc(v.name)}</h1>
         <p class="about">${esc(v.about || '')}</p>`;
     }
@@ -643,15 +641,26 @@
     const grid = $('#pay-options');
     if (!grid) return;
     const stripe = (cfg.stripe && cfg.stripe.publishableKey) ? cfg.stripe : null;
-    const hasGoogle = !!(cfg.payments && cfg.payments.enableGooglePay);
-    const hasApple = !!(cfg.payments && cfg.payments.enableApplePay);
 
+    // Wallet methods don't get radio rows — each wallet renders its own
+    // official button below the list (single Google Pay button, Apple Pay
+    // button visible only where Apple Pay can actually present).
     grid.innerHTML = [
       payOption('TEJ', 'Plătești la ridicare', 'Comanda pleacă acum la bucătărie — plătești la tejghea', ICONS.bag),
-      hasGoogle ? payOption('GOOGLE PAY', 'Google Pay', 'Foaia Google Pay se deschide direct', ICONS.gpLogo) : '',
-      hasApple ? payOption('APPLE PAY', 'Apple Pay', 'Doar în Safari (iPhone / Mac)', ICONS.appleLogo) : '',
       stripe ? payOption('STRIPE', 'Card (Stripe)', `Test · ${stripe.platformFeePercentage || 0}% taxă platformă`, ICONS.card) : ''
-    ].join('');
+    ].filter(Boolean).join('');
+
+    const apMount = $('#applepay-mount');
+    if (apMount) {
+      const appleEnabled = !!(cfg.payments && cfg.payments.enableApplePay && cfg.applePayMerchantIdentifier);
+      apMount.hidden = !(appleEnabled && window.MunchoPayments && window.MunchoPayments.applePayCanPresent());
+    }
+
+    const gbox = $('#gpay-box');
+    if (gbox) {
+      const googleEnabled = !!(cfg.payments && cfg.payments.enableGooglePay && window.MunchoPayments);
+      gbox.hidden = !googleEnabled;
+    }
   }
 
   function renderCheckout(resetScroll) {
@@ -707,13 +716,15 @@
     const data = buildOrderData();
     buzz(14);
 
-    // direct kitchen sync (Sapori) — unchanged bridge
-    const saporiItems = data.items
+    // primary channel: the restaurant's own API (pizzeria-sapori-italia.ro /
+    // AppMenu backend). Every kitchen-preparable line is sent the moment
+    // the order is confirmed. Failures surface on the ticket with a retry.
+    const apiProducts = data.items
       .filter((x) => x.item && x.item.venue === 'sapori')
       .map((x) => ({ productId: x.item.id, qty: x.qty }));
-    let saporiSync = null;
-    if (saporiItems.length && window.MunchoSaporiBridge) {
-      saporiSync = await window.MunchoSaporiBridge.createVirtualCart(saporiItems);
+    let apiSync = { ok: false, skipped: true };
+    if (apiProducts.length && window.MunchoSaporiBridge) {
+      apiSync = await window.MunchoSaporiBridge.createVirtualCart(apiProducts);
     }
 
     const code = 'M-' + (100 + Math.floor(Math.random() * 899));
@@ -729,8 +740,9 @@
       items: data.items.map((x) => ({ title: x.item.title, qty: x.qty, price: x.item.price, venue: x.item.venue })),
       readyMinutes: data.readyMinutes,
       customer: data.customer,
-      saporiCartId: (saporiSync && saporiSync.cartId) || null,
-      saporiUrl: (saporiSync && saporiSync.directUrl) || null,
+      apiProducts,
+      saporiCartId: (apiSync && apiSync.ok && apiSync.cartId) || null,
+      saporiUrl: (apiSync && apiSync.ok && apiSync.directUrl) || null,
       status: 'în pregătire'
     };
 
@@ -748,13 +760,13 @@
       window.MunchoDispatch.sendOrder(lastPlacedOrder)
         .then((dispatchInfo) => {
           lastPlacedOrder.dispatch = dispatchInfo;
-          renderDispatchNote(dispatchInfo);
+          renderDispatchNote(lastPlacedOrder, apiSync, dispatchInfo);
         })
         .catch(() => {
-          renderDispatchNote({ delivered: false, results: [] });
+          renderDispatchNote(lastPlacedOrder, apiSync, null);
         });
     } else {
-      renderDispatchNote({ delivered: false, results: [] });
+      renderDispatchNote(lastPlacedOrder, apiSync, null);
     }
   }
 
@@ -793,14 +805,34 @@
     }
   }
 
-  function renderDispatchNote(dispatchInfo) {
+  function renderDispatchNote(order, apiSync, dispatchInfo) {
     const disp = $('#dispatch-note');
     if (!disp) return;
-    const okCh = (dispatchInfo.results || []).filter((r) => r.ok)
-      .map((r) => (r.channel === 'ntfy' ? 'notificare bucătărie' : r.channel));
-    disp.innerHTML = dispatchInfo.delivered
-      ? `<strong style="color:var(--green)">✓ Tichet trimis la bucătărie</strong> (${okCh.join(' + ')})`
-      : `<strong style="color:var(--danger)">⚠ Trimiterea automată a eșuat</strong> — folosește butonul WhatsApp de mai jos.`;
+    document.getElementById('dispatch-retry-btn')?.remove();
+
+    const apiDone = !!(apiSync && apiSync.ok);
+    const pushDone = !!(dispatchInfo && dispatchInfo.delivered);
+
+    const lines = [];
+    if (apiDone) {
+      lines.push('<strong style="color:var(--green)">Comandă trimisă la bucătărie prin API-ul restaurantului</strong>' +
+        (apiSync.cartId ? ` (ID ${esc(apiSync.cartId)})` : ''));
+    } else if (apiSync && !apiSync.skipped) {
+      lines.push(`<strong style="color:var(--danger)">API-ul restaurantului nu a confirmat comanda</strong> (${esc(apiSync.error || 'răspuns lipsă')}).
+        Comanda rămâne validă cu codul #${esc(order.code)} — prezinți codul la tejghea.` +
+        ' <button type="button" id="dispatch-retry-btn" class="btn-secondary" style="margin-top:8px;height:40px;padding:0 14px;font-size:12.5px;" data-action="dispatch-retry">Reîncearcă trimiterea</button>');
+    } else {
+      lines.push('Comanda e salvată cu codul #' + esc(order.code) + ' — prezintă codul la tejghea.');
+    }
+    if (pushDone) {
+      const okCh = (dispatchInfo.results || []).filter((r) => r.ok).map((r) => r.channel);
+      lines.push('Notificare bucătărie: ' + okCh.join(' + '));
+    } else if (apiDone) {
+      lines.push('Bucătăria vede tichetul în sistemul ei (AppMenu).');
+    }
+    // single inline span — .info-note is a flex row and would otherwise
+    // turn every line into a separate floating column
+    disp.innerHTML = `<span>${lines.join('<br>')}<br></span>`;
   }
 
   function showSuccess(order) {
@@ -980,13 +1012,25 @@
         }).catch((err) => toast(esc(err.message || 'Apple Pay a fost anulat.')));
         break;
       }
-      case 'whatsapp-ticket': {
+      case 'dispatch-retry': {
         const o = lastPlacedOrder;
         if (!o) break;
-        const text = `Comandă Muncho ${'#' + o.code}\nTrimisă la bucătărie: ${new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })} · ${readyEtaText(o.readyMinutes)}\n` +
-          (o.items || []).map((x) => `${x.qty}× ${x.title}`).join('\n') +
-          `\nTotal: ${money(o.total)}`;
-        window.open('https://wa.me/' + (cfg.whatsappNumber || '40770864679') + '?text=' + encodeURIComponent(text), '_blank');
+        const btn = t;
+        btn.disabled = true;
+        btn.textContent = 'Se retrimite…';
+        const retry = async () => {
+          let apiSync = { ok: false, skipped: true };
+          if (o.apiProducts && o.apiProducts.length && window.MunchoSaporiBridge) {
+            apiSync = await window.MunchoSaporiBridge.createVirtualCart(o.apiProducts);
+            if (apiSync && apiSync.ok) { o.saporiCartId = apiSync.cartId; o.saporiUrl = apiSync.directUrl; saveOrders(); }
+          }
+          let info = null;
+          if (window.MunchoDispatch) {
+            try { info = await window.MunchoDispatch.sendOrder(o); } catch (e) { info = null; }
+          }
+          renderDispatchNote(o, apiSync, info);
+        };
+        retry();
         break;
       }
       case 'go-home': location.href = 'index.html'; break;

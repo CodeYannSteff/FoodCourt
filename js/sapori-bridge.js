@@ -1,11 +1,14 @@
 /**
- * Muncho — Direct Integration Bridge with Pizzeria Sapori Italia (Argeș Mall)
- * 
- * Features:
- *  - Direct VirtualCart Sync with Roweb API (POST https://api.rpd.roweb.ro/api/product/integration/createvirtualcart)
- *  - Direct Cart URL generation (https://pizzeria-sapori-italia.ro/add-to-cart/?cartId={cartId})
- *  - Instant WhatsApp Kitchen Order Dispatch to counter (+40 770 864 679)
- *  - Direct counter phone calling (0770 864 679)
+ * Muncho — Direct Integration with the Argeș Mall restaurant
+ * Pizzeria Sapori Italia — https://pizzeria-sapori-italia.ro/AppMenu/
+ *
+ * When an order is confirmed, its lines are POSTed to the restaurant's own
+ * integration API (Roweb createvirtualcart) — the same API that powers
+ * the restaurant's AppMenu. The response carries a real cartId; the ticket
+ * the cashier sees and the kitchen ticket are both keyed on it.
+ *
+ * No WhatsApp, no fallback fabrications: if the API does not confirm,
+ * the caller shows a retry — the order stays valid locally meanwhile.
  */
 
 (function () {
@@ -15,8 +18,6 @@
     apiKey: 'bf026006-7d01-41bf-ae76-ab0fba3d4c80',
     apiUrl: 'https://api.rpd.roweb.ro/api/product/integration/createvirtualcart',
     origin: 'https://pizzeria-sapori-italia.ro',
-    phone: '0770 864 679',
-    phoneClean: '40770864679',
     storeLocation: 'Food Court Argeș Mall, Nivel 1, Pitești'
   };
 
@@ -35,13 +36,14 @@
     },
 
     /**
-     * Sync order items with Sapori's live API to create a VirtualCart ID
-     * @param {Array} saporiItems - Array of { productId, qty }
+     * Send the confirmed order to the restaurant's API (AppMenu backend).
+     * @param {Array} products - Array of { productId, qty }
+     * @returns {Promise<{ok: boolean, cartId?: string, directUrl?: string, error?: string}>}
      */
-    createVirtualCart: async function (saporiItems) {
-      if (!saporiItems || !saporiItems.length) return null;
+    createVirtualCart: async function (products) {
+      if (!products || !products.length) return { ok: false, skipped: true };
 
-      const payloadProducts = saporiItems.map(item => ({
+      const payloadProducts = products.map((item) => ({
         productId: Number(item.productId || item.id),
         qty: Number(item.qty || 1),
         selectedVariation: item.selectedVariation || '',
@@ -64,62 +66,17 @@
           const resData = await response.json();
           if (resData && resData.data && resData.data.id) {
             return {
-              success: true,
-              cartId: resData.data.id,
-              directUrl: `https://pizzeria-sapori-italia.ro/add-to-cart/?cartId=${resData.data.id}`
+              ok: true,
+              cartId: String(resData.data.id),
+              directUrl: 'https://pizzeria-sapori-italia.ro/add-to-cart/?cartId=' + resData.data.id
             };
           }
+          return { ok: false, error: 'Răspuns API fără ID de comandă.' };
         }
+        return { ok: false, error: 'API restaurant: HTTP ' + response.status };
       } catch (err) {
-        console.warn('Direct Sapori API bridge warning:', err.message);
+        return { ok: false, error: err.message || 'rețea indisponibilă' };
       }
-
-      // Fallback local cart reference
-      const fallbackId = 'sap_' + Math.random().toString(36).substring(2, 10);
-      return {
-        success: true,
-        cartId: fallbackId,
-        directUrl: `https://pizzeria-sapori-italia.ro/checkout/`
-      };
-    },
-
-    /**
-     * Format a clean, official kitchen order ticket for Sapori's staff
-     */
-    buildKitchenTicket: function (order) {
-      const dateStr = order.date || new Date().toLocaleString('ro-RO');
-      const lines = (order.items || []).map(i => `  • ${i.qty}x ${i.title} (${Number(i.price * i.qty).toFixed(2)} lei)`).join('\n');
-      
-      return `🍕 *COMANDĂ MUNCHO — FOOD COURT ARGEȘ MALL*
-━━━━━━━━━━━━━━━━━━━━
-📌 *COD RIDICARE:* #${order.code}
-⏱ *Dată/Oră:* ${dateStr}
-📍 *Locație:* ${SAPORI_CONFIG.storeLocation}
-━━━━━━━━━━━━━━━━━━━━
-📋 *PRODUSE DE PREPARAT:*
-${lines}
-━━━━━━━━━━━━━━━━━━━━
-💰 *TOTAL DE PLATĂ LA CASĂ:* ${Number(order.total).toFixed(2)} lei
-💳 *CANAL:* ${SaporiBridge.payLabel(order.payMethod)}
-${order.saporiCartId ? `🔗 *ID Sistem Sapori:* ${order.saporiCartId}` : ''}
-━━━━━━━━━━━━━━━━━━━━
-Clientul prezintă codul la casă pentru plată și ridicare. Vă mulțumim!`;
-    },
-
-    /**
-     * Open WhatsApp directly with prefilled kitchen order ticket to Sapori's counter
-     */
-    dispatchToWhatsApp: function (order) {
-      const ticket = this.buildKitchenTicket(order);
-      const url = `https://wa.me/${SAPORI_CONFIG.phoneClean}?text=${encodeURIComponent(ticket)}`;
-      window.open(url, '_blank');
-    },
-
-    /**
-     * Call Sapori's counter phone directly
-     */
-    callCounter: function () {
-      window.location.href = `tel:${SAPORI_CONFIG.phoneClean}`;
     }
   };
 

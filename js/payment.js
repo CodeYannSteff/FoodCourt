@@ -20,8 +20,8 @@
  * - SAVE (Plată la tejghea): no online payment — the order is saved with a
  *   pickup code and paid at the register.
  *
- * Saved orders are forwarded to the restaurant by js/dispatch.js
- * (ntfy push + optional webhook + WhatsApp ticket).
+ * Saved orders are forwarded to the restaurant by js/sapori-bridge.js
+ * (the restaurant's own API), plus optional ntfy/webhook via js/dispatch.js.
  */
 
 (function () {
@@ -219,17 +219,12 @@
     }
   }
 
+  /* When the Google Pay sheet isn't available (insecure origin, not ready),
+     the official button simply doesn't render and the reason surfaces in
+     the #pay-error box — no hand-rolled fallback button. */
   function showGoogleFallback(reason) {
-    const fallback = document.getElementById('googlePayFallbackBtn');
     const mount = document.getElementById('googlePayMount');
     if (mount) mount.innerHTML = '';
-    if (fallback) {
-      fallback.style.display = 'flex';
-      fallback.onclick = () => {
-        if (gpClient) attemptGooglePaySheet();
-        else showPayError(reason);
-      };
-    }
     return reason;
   }
 
@@ -237,11 +232,9 @@
     opts = opts || {};
     gpLastOpts = opts;
     const mount = document.getElementById('googlePayMount');
-    const fallback = document.getElementById('googlePayFallbackBtn');
-    const box = document.getElementById('googlePayBox');
+    const box = document.getElementById('gpay-box');
     if (box) box.hidden = false;
     if (mount) mount.innerHTML = '';
-    if (fallback) fallback.style.display = 'none';
 
     const unavailable = (reason) => {
       opts._unavailableReason = reason;
@@ -276,7 +269,6 @@
       const button = gpClient.createButton({ onClick: attemptGooglePaySheet });
       mount.appendChild(button);
     }
-    if (fallback) fallback.style.display = 'none';
     return { available: true };
   }
 
@@ -463,7 +455,7 @@
     payWithApplePay: payWithApplePay,
 
     payWithGooglePay: async function (orderData, opts) {
-      const box = document.getElementById('googlePayBox');
+      const box = document.getElementById('gpay-box');
       if (box) box.scrollIntoView({ behavior: 'smooth', block: 'center' });
       throw new Error('Folosește butonul Google Pay de mai sus — se deschide foaia reală de plată.');
     },

@@ -8,7 +8,9 @@
  *     pops up live with sound. No account, no keys.
  *  2) Generic webhook: POSTs the order JSON to orderWebhookUrl when set —
  *     plug in the restaurant's real order system later without touching UI code.
- *  3) WhatsApp ticket: already handled by MunchoSaporiBridge (manual button).
+ *
+ * Primary kitchen channel is the restaurant's own API (MunchoSaporiBridge,
+ * createvirtualcart); these channels are secondary/optional notification.
  */
 
 (function () {

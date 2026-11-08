@@ -2,7 +2,8 @@
 
 A unified, high-performance food ordering web app optimized for mobile devices. 100% static —
 host it on any FTP server or GitHub Pages. Real Google Pay sheet (TEST mode), Apple Pay ready,
-and zero-backend order dispatch to the restaurant (ntfy push + webhook + WhatsApp ticket).
+and order dispatch straight to the restaurant's own API (Sapori AppMenu backend),
+with optional ntfy push + webhook notifications.
 
 Powered by **teen minds** · Argeș Mall · Pizzeria Sapori Italia live menu.
 
@@ -53,13 +54,17 @@ Powered by **teen minds** · Argeș Mall · Pizzeria Sapori Italia live menu.
     token stored as the payment reference.
   - **Apple Pay**: button appears only with a configured Merchant ID; the real
     sheet additionally needs a verified HTTPS domain (see below).
-- **Order dispatch to the restaurant (zero-backend)**:
-  - Instant push to the counter via ntfy (the kitchen opens the topic URL and
-    every order pops up live), optional webhook POST of the order JSON to the
-    restaurant's real order system, plus the existing WhatsApp ticket button.
+- **Order dispatch to the restaurant**:
+  - **Primary:** confirmed orders are POSTed to the restaurant's own integration
+    API (Roweb `createvirtualcart`, same backend as
+    [pizzeria-sapori-italia.ro/AppMenu](https://pizzeria-sapori-italia.ro/AppMenu/));
+    the response carries a real `cartId`. If the API doesn't confirm, the
+    success screen shows a retry — never a fake confirmation.
+  - **Secondary (optional):** instant ntfy push to the counter and a webhook
+    POST of the order JSON to the restaurant's real order system.
 - **Order Tracking & Digital Receipt**:
   - Animated order code `#M-###`, a "Gata în ~N min" ready pill and the
-    ntfy/webhook dispatch note ("tichet trimis la bucătărie").
+    API dispatch note ("Comandă trimisă la bucătărie prin API-ul restaurantului").
   - Live 3-step progress timeline: `Comandă primită` → `În pregătire` → `Gata de ridicare`.
   - Order history saved to `localStorage` under `fc-orders` (feeds the
     Comenzi sheet + badge).
@@ -174,8 +179,9 @@ The `ApplePaySession` code path in `js/payment.js` is already written for this.
    ```
    Later, when a backend/processor exists, point this URL at it and real
    charging plugs in behind the same contract.
-3. **WhatsApp ticket:** the success screen keeps the "Trimite tichet WhatsApp"
-   button (prefilled kitchen ticket to the counter's number).
+3. **Retry button:** if the restaurant API doesn't confirm, the success
+   screen keeps a "Reîncearcă trimiterea" button on the dispatch note that
+   re-POSTs the same order lines.
 
 ---
 
